@@ -37,16 +37,15 @@ import scala.quoted.*
  */
 object DeriveParameterBinderFactory {
 
-  inline def array[A, T[X] <: Iterable[X]](
-    oType: OType,
-    f: T[A] => Array[AnyRef]
-  )(using conn: Connection): ParameterBinderFactory[T[A]] = ${ arrayImpl('{ f }, '{ oType }, '{ conn }) }
+  inline def array[A, T[X] <: Iterable[X]](inline f: T[A] => Array[Any])(using
+    conn: Connection
+  ): ParameterBinderFactory[T[A]] = ${ arrayImpl('{ f }, '{ conn }) }
 
-  inline def jsonb[T](inline f: T => String): ParameterBinderFactory[T] = ${ jsonImpl('{ f }, '{ "jsonb" }) }
+  inline def jsonb[T](inline f: T => String): ParameterBinderFactory[T] = ${ jsonImpl('{ f }, '{ OType.Jsonb }) }
 
-  inline def json[T](inline f: T => String): ParameterBinderFactory[T] = ${ jsonImpl('{ f }, '{ "json" }) }
+  inline def json[T](inline f: T => String): ParameterBinderFactory[T] = ${ jsonImpl('{ f }, '{ OType.Json }) }
 
-  private def jsonImpl[T](f: Expr[T => String], typeString: Expr[String])(using
+  private def jsonImpl[T](f: Expr[T => String], oType: Expr[OType])(using
     Quotes,
     Type[T]
   ): Expr[ParameterBinderFactory[T]] =
@@ -54,21 +53,24 @@ object DeriveParameterBinderFactory {
       ParameterBinderFactory[T] { (value: T) => (stmt: PreparedStatement, idx: Int) =>
         val obj     = new PGobject()
         val jsonStr = $f(value)
-        obj.setType(${ typeString })
+        obj.setType($oType.name)
         obj.setValue(jsonStr)
         stmt.setObject(idx, obj)
       }
     }
 
-  private def arrayImpl[A, T[_]](
-    f: Expr[T[A] => Array[AnyRef]],
-    arrType: Expr[OType],
+  private def arrayImpl[A, T[X]](
+    f: Expr[T[A] => Array[Any]],
     conn: Expr[Connection]
   )(using quotes: Quotes, tpa: Type[A], tpt: Type[T]): Expr[ParameterBinderFactory[T[A]]] =
     import quotes.reflect.*
     '{
+      val name = OType.valueOf(typeName[A]) match
+        case OType.Int    => OType.Int.name
+        case OType.String => OType.String.name
+        case _            => throw new IllegalArgumentException(s"Invalid type: ${typeName[A]}")
       ParameterBinderFactory[T[A]] { (value: T[A]) => (stmt: PreparedStatement, idx: Int) =>
-        stmt.setArray(idx, $conn.createArrayOf($arrType.name, $f(value)))
+        stmt.setArray(idx, $conn.createArrayOf(name, $f(value)))
       }
     }
 }
