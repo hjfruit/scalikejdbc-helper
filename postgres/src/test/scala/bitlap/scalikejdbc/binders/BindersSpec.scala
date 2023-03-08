@@ -21,6 +21,7 @@
 
 package bitlap.scalikejdbc.binders
 
+import bitlap.scalikejdbc.binders.Utils.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.ParameterBinderWithValue

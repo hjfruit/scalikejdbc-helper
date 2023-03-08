@@ -22,7 +22,7 @@
 package bitlap.scalikejdbc.binders
 
 import org.postgresql.util.PGobject
-
+import bitlap.scalikejdbc.binders.Utils.*
 import java.sql.{ Connection, PreparedStatement }
 import scala.quoted.*
 import org.postgresql.util.PGobject
