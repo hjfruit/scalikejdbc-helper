@@ -72,6 +72,20 @@ trait ArrayBinders:
     DeriveParameterBinder.array[BigDecimal, Vector](OType.BigDecimal, _.toArray)
   // Iterable[BigDecimal] end
 
+  // Iterable[Long]
+  given longList2Array(using Connection): ParameterBinderFactory[List[Long]] =
+    DeriveParameterBinder.array[Long, List](OType.Long, _.toArray)
+
+  given longSeq2Array(using Connection): ParameterBinderFactory[Seq[Long]] =
+    DeriveParameterBinder.array[Long, Seq](OType.Long, _.toArray)
+
+  given longSet2Array(using Connection): ParameterBinderFactory[Set[Long]] =
+    DeriveParameterBinder.array[Long, Set](OType.Long, _.toArray)
+
+  given longVector2Array(using Connection): ParameterBinderFactory[Vector[Long]] =
+    DeriveParameterBinder.array[Long, Vector](OType.Long, _.toArray)
+  // Iterable[Long] end
+
   // type binder
   given array2List[T](using map: Array[Any] => List[T]): TypeBinder[List[T]] =
     DeriveTypeBinder.array[T, List](map, List.empty[T])

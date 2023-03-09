@@ -12,32 +12,39 @@
 ----
 
 # array
-| postgres type | scala type | collections         |
+
+> Default supported types
+
+| postgres type | scala type | support collections |
 |---------------|------------|---------------------|
 | varchar       | String     | List,Set,Seq,Vector |
 | integer       | Int        | List,Set,Seq,Vector |
 | decimal       | BigDecimal | List,Set,Seq,Vector |
 
 ```scala
-    final case class UserRepository() extends ArrayBinders
- 
-    object UserRepositoryTable extends SQLSyntaxSupport[UserRepository] with ArrayBinders:
-      // using ParameterBinderFactory
-      def apply(up: ResultName[UserRepository])(rs: WrappedResultSet)(using connection: Connection): UserRepository =
-        autoConstruct(rs, up) 
-    
-    
-    object UserRepositoryTable extends SQLSyntaxSupport[UserRepository] with ArrayBinders:
-      // using TypeBinder
-      given Function1[Array[Any] , List[String]] = ???  // in scope
+final case class UserRepository() extends ArrayBinders
+
+object UserRepositoryTable extends SQLSyntaxSupport[UserRepository] with ArrayBinders:
+  // using ParameterBinderFactory
+  def apply(up: ResultName[UserRepository])(rs: WrappedResultSet)(using connection: Connection): UserRepository =
+    autoConstruct(rs, up) 
+
+
+object UserRepositoryTable extends SQLSyntaxSupport[UserRepository] with ArrayBinders:
+  // using TypeBinder
+  given Function1[Array[Any] , List[String]] = ???  // in scope
 ```
 
 # json
 
 ```scala
+final case class UserRepository() extends JsonBinders
+  // json string to map 
+  given Function1[String , Map[String, String]] = ???
+```
 
-    final case class UserRepository() extends JsonBinders
-      // json string to map 
-      given Function1[String , Map[String, String]] = ???
-    
+# Manual definition
+
+```scala
+given ParameterBinderFactory[List[Short]] = DeriveParameterBinder.array[Short, List](OType.Short, _.toArray)
 ```
