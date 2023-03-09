@@ -73,9 +73,6 @@ trait ExtraBinders:
   // Iterable[BigDecimal] end
 
   // json
-  given type2Json[T](using map: T => String): ParameterBinderFactory[T] =
-    DeriveParameterBinder.json[T](map)
-
   given type2Jsonb[T](using map: T => String): ParameterBinderFactory[T] =
     DeriveParameterBinder.jsonb[T](map)
   // json end
@@ -84,15 +81,15 @@ trait ExtraBinders:
   given json2Type[T](using map: String => T): TypeBinder[T] =
     DeriveTypeBinder.string[T](map)
 
-  given array2List[T](using map: Any => T): TypeBinder[List[T]] =
-    DeriveTypeBinder.array[T, List](_.toList.map(map), List.empty[T])
+  given array2List[T](using map: Array[Any] => List[T]): TypeBinder[List[T]] =
+    DeriveTypeBinder.array[T, List](map, List.empty[T])
 
-  given array2Set[T](using map: Any => T): TypeBinder[Set[T]] =
-    DeriveTypeBinder.array[T, Set](_.toSet.map(map), Set.empty[T])
+  given array2Set[T](using map: Array[Any] => Set[T]): TypeBinder[Set[T]] =
+    DeriveTypeBinder.array[T, Set](map, Set.empty[T])
 
-  given array2Vector[T](using map: Any => T): TypeBinder[Vector[T]] =
-    DeriveTypeBinder.array[T, Vector](_.toVector.map(map), Vector.empty[T])
+  given array2Vector[T](using map: Array[Any] => Vector[T]): TypeBinder[Vector[T]] =
+    DeriveTypeBinder.array[T, Vector](map, Vector.empty[T])
 
-  given array2Seq[T](using map: Any => T): TypeBinder[Seq[T]] =
-    DeriveTypeBinder.array[T, Seq](_.toSeq.map(map), Seq.empty[T])
+  given array2Seq[T](using map: Array[Any] => Seq[T]): TypeBinder[Seq[T]] =
+    DeriveTypeBinder.array[T, Seq](map, Seq.empty[T])
   // type binder end
