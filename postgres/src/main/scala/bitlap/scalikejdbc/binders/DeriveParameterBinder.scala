@@ -32,7 +32,7 @@ import scala.quoted.*
  *    梦境迷离
  *  @version 1.0,2023/3/8
  */
-object DeriveParameterBinder {
+object DeriveParameterBinder:
 
   inline def array[A, T[X] <: Iterable[X]](inline oType: OType, f: T[A] => Array[Any])(using
     conn: Connection
@@ -67,4 +67,3 @@ object DeriveParameterBinder {
         stmt.setArray(idx, $conn.createArrayOf($oType.name, $f(value)))
       }
     }
-}

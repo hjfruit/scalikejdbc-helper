@@ -30,7 +30,7 @@ import scala.quoted.*
  *    梦境迷离
  *  @version 1.0,2023/3/8
  */
-object DeriveTypeBinder {
+object DeriveTypeBinder:
 
   inline def array[A, T[X] <: Iterable[X]](inline f: Array[Any] => T[A], default: T[A]): TypeBinder[T[A]] =
     ${ arrayImpl('{ f }, '{ default }) }
@@ -70,5 +70,3 @@ object DeriveTypeBinder {
             case _             => $default
       }
     }
-
-}
