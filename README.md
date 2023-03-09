@@ -43,8 +43,12 @@ final case class UserRepository() extends JsonBinders
   given Function1[String , Map[String, String]] = ???
 ```
 
-# Manual definition
+# manual definition
 
 ```scala
 given ParameterBinderFactory[List[Short]] = DeriveParameterBinder.array[Short, List](OType.Short, _.toArray)
+
+given ParameterBinderFactory[Map[String, String]] = DeriveParameterBinder.json[Map[String, String]](toJson)
+
+given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.toList.map(s => BigDecimal(s.toString)), Nil)
 ```
