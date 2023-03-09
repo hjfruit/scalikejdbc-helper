@@ -7,6 +7,6 @@
 [Badge-Snapshots]: https://img.shields.io/nexus/s/org.bitlap/scalikejdbc-binders-postgres_3?server=https%3A%2F%2Fs01.oss.sonatype.org
 
 [Link-Codecov]: https://codecov.io/gh/bitlap/scalikejdbc-binders
-[Link-Snapshots]: https://s01.oss.sonatype.org/content/repositories/snapshots/org/bitlap/scalikejdbc-binders-postgres
+[Link-Snapshots]: https://s01.oss.sonatype.org/content/repositories/snapshots/org/bitlap/scalikejdbc-binders-postgres_3
 
 ----
