@@ -27,7 +27,10 @@ package bitlap.scalikejdbc.binders
  */
 enum OType(val name: String):
   self =>
-  case String extends OType("string")
-  case Int    extends OType("int")
+  case String extends OType("varchar")
+  case Int    extends OType("integer")
+  case Long    extends OType("bigint")
+  case BigDecimal    extends OType("decimal")
+  case Short   extends OType("smallint")
   case Json   extends OType("json")
   case Jsonb  extends OType("jsonb")

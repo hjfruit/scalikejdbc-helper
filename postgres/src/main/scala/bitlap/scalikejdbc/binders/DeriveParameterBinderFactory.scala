@@ -25,7 +25,6 @@ import org.postgresql.util.PGobject
 import bitlap.scalikejdbc.binders.Utils.*
 import java.sql.{ Connection, PreparedStatement }
 import scala.quoted.*
-import org.postgresql.util.PGobject
 import scalikejdbc.ParameterBinderFactory
 
 import java.sql.{ Connection, PreparedStatement }
@@ -37,9 +36,9 @@ import scala.quoted.*
  */
 object DeriveParameterBinderFactory {
 
-  inline def array[A, T[X] <: Iterable[X]](inline f: T[A] => Array[Any])(using
+  inline def arrayOf[A, T[X] <: Iterable[X]](inline oType: OType, f: T[A] => Array[Any])(using
     conn: Connection
-  ): ParameterBinderFactory[T[A]] = ${ arrayImpl('{ f }, '{ conn }) }
+  ): ParameterBinderFactory[T[A]] = ${ customArrayImpl('{ f }, '{ conn }, '{ oType }) }
 
   inline def jsonb[T](inline f: T => String): ParameterBinderFactory[T] = ${ jsonImpl('{ f }, '{ OType.Jsonb }) }
 
@@ -59,18 +58,15 @@ object DeriveParameterBinderFactory {
       }
     }
 
-  private def arrayImpl[A, T[X]](
+  private def customArrayImpl[A, T[X]](
     f: Expr[T[A] => Array[Any]],
-    conn: Expr[Connection]
+    conn: Expr[Connection],
+    oType: Expr[OType]
   )(using quotes: Quotes, tpa: Type[A], tpt: Type[T]): Expr[ParameterBinderFactory[T[A]]] =
     import quotes.reflect.*
     '{
-      val name = OType.valueOf(typeName[A]) match
-        case OType.Int    => OType.Int.name
-        case OType.String => OType.String.name
-        case _            => throw new IllegalArgumentException(s"Invalid type: ${typeName[A]}")
       ParameterBinderFactory[T[A]] { (value: T[A]) => (stmt: PreparedStatement, idx: Int) =>
-        stmt.setArray(idx, $conn.createArrayOf(name, $f(value)))
+        stmt.setArray(idx, $conn.createArrayOf($oType.name, $f(value)))
       }
     }
 }

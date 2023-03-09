@@ -30,18 +30,54 @@ import java.sql.Connection
  *  @version 1.0,2023/3/8
  */
 trait Binders {
-  given list2Array[T](using Connection): ParameterBinderFactory[List[T]] =
-    DeriveParameterBinderFactory.array[T, List](_.toArray)
 
-  given seq2Array[T](using Connection): ParameterBinderFactory[Seq[T]] =
-    DeriveParameterBinderFactory.array[T, Seq](_.toArray)
+  // Iterable[String]
+  given stringList2Array(using Connection): ParameterBinderFactory[List[String]] =
+    DeriveParameterBinderFactory.arrayOf[String, List](OType.String, _.toArray)
 
-  given set2Array[T](using Connection): ParameterBinderFactory[Set[T]] =
-    DeriveParameterBinderFactory.array[T, Set](_.toArray)
+  given stringSeq2Array(using Connection): ParameterBinderFactory[Seq[String]] =
+    DeriveParameterBinderFactory.arrayOf[String, Seq](OType.String, _.toArray)
 
-  given vector2Array[T](using Connection): ParameterBinderFactory[Vector[T]] =
-    DeriveParameterBinderFactory.array[T, Vector](_.toArray)
+  given stringSet2Array(using Connection): ParameterBinderFactory[Set[String]] =
+    DeriveParameterBinderFactory.arrayOf[String, Set](OType.String, _.toArray)
 
+  given stringVector2Array(using Connection): ParameterBinderFactory[Vector[String]] =
+    DeriveParameterBinderFactory.arrayOf[String, Vector](OType.String, _.toArray)
+  // Iterable[String] end   
+
+  // Iterable[Int]   
+  given intList2Array(using Connection): ParameterBinderFactory[List[Int]] =
+    DeriveParameterBinderFactory.arrayOf[Int, List](OType.Int, _.toArray)
+
+  given intSeq2Array(using Connection): ParameterBinderFactory[Seq[Int]] =
+    DeriveParameterBinderFactory.arrayOf[Int, Seq](OType.Int, _.toArray)
+
+  given intSet2Array(using Connection): ParameterBinderFactory[Set[Int]] =
+    DeriveParameterBinderFactory.arrayOf[Int, Set](OType.Int, _.toArray)
+
+  given intVector2Array(using Connection): ParameterBinderFactory[Vector[Int]] =
+    DeriveParameterBinderFactory.arrayOf[Int, Vector](OType.BigDecimal, _.toArray)
+  // Iterable[Int] end
+
+  // Iterable[BigDecimal]
+  given bigDecimalList2Array(using Connection): ParameterBinderFactory[List[BigDecimal]] =
+    DeriveParameterBinderFactory.arrayOf[BigDecimal, List](OType.BigDecimal, _.toArray)
+
+  given bigDecimalSeq2Array(using Connection): ParameterBinderFactory[Seq[BigDecimal]] =
+    DeriveParameterBinderFactory.arrayOf[BigDecimal, Seq](OType.BigDecimal, _.toArray)
+
+  given bigDecimalSet2Array(using Connection): ParameterBinderFactory[Set[BigDecimal]] =
+    DeriveParameterBinderFactory.arrayOf[BigDecimal, Set](OType.BigDecimal, _.toArray)
+
+  given bigDecimalVector2Array(using Connection): ParameterBinderFactory[Vector[BigDecimal]] =
+    DeriveParameterBinderFactory.arrayOf[BigDecimal, Vector](OType.BigDecimal, _.toArray)
+  // Iterable[BigDecimal] end
+
+  // json
   given map2Json[T](using toJsonString: T => String): ParameterBinderFactory[T] =
     DeriveParameterBinderFactory.json[T](toJsonString)
+
+  given map2Jsonb[T](using toJsonString: T => String): ParameterBinderFactory[T] =
+    DeriveParameterBinderFactory.jsonb[T](toJsonString)
+  // json end  
 }

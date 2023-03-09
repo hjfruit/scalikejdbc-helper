@@ -67,36 +67,24 @@ class BindersSpec extends AnyFlatSpec with Matchers:
 
   "DeriveParameterBinderFactory postgres array" should "ok" in {
     given Connection = ???
-    val stringArr    = showCode_(DeriveParameterBinderFactory.array[String, List](_.toArray))
+    val stringArr    = showCode_(DeriveParameterBinderFactory.arrayOf[String, List](OType.String, _.toArray))
     println(s"stringArr:\n$stringArr")
     stringArr shouldEqual
-      """({
-        |  val name: String = OType.valueOf(("String": String)) match {
-        |    case OType.Int =>
-        |      OType.Int.name
-        |    case OType.String =>
-        |      OType.String.name
-        |    case _ =>
-        |      throw new IllegalArgumentException(_root_.scala.StringContext.apply("Invalid type: ", "").s(("String": String)))
-        |  }
-        |  ParameterBinderFactory.apply[List[String]](((value: List[String]) => ((stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, given_Connection.createArrayOf(name, value.toArray[Any](ClassTag.Any))))))
-        |}: ParameterBinderFactory[List[String]])""".stripMargin
+      """{
+        |  val f$proxy3: Function1[List[String], Array[Any]] = ((_$1: List[String]) => _$1.toArray[Any](ClassTag.Any))
+        |
+        |  (ParameterBinderFactory.apply[List[String]](((value: List[String]) => ((stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, given_Connection.createArrayOf(String.name, f$proxy3.apply(value)))))): ParameterBinderFactory[List[String]])
+        |}""".stripMargin
 
-    val intArr = showCode_(DeriveParameterBinderFactory.array[Int, Seq](_.toArray))
+    val intArr = showCode_(DeriveParameterBinderFactory.arrayOf[Int, Seq](OType.Int, _.toArray))
     println(s"intArr:\n$intArr")
     intArr shouldEqual
-      """({
-        |  val name: String = OType.valueOf(("Int": String)) match {
-        |    case OType.Int =>
-        |      OType.Int.name
-        |    case OType.String =>
-        |      OType.String.name
-        |    case _ =>
-        |      throw new IllegalArgumentException(_root_.scala.StringContext.apply("Invalid type: ", "").s(("Int": String)))
-        |  }
-        |  ParameterBinderFactory.apply[Seq[Int]](((value: Seq[Int]) => ((stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, given_Connection.createArrayOf(name, value.toArray[Any](ClassTag.Any))))))
-        |}: ParameterBinderFactory[Seq[Int]])""".stripMargin
+      """{
+        |  val f$proxy4: Function1[Seq[Int], Array[Any]] = ((_$2: Seq[Int]) => _$2.toArray[Any](ClassTag.Any))
+        |
+        |  (ParameterBinderFactory.apply[Seq[Int]](((value: Seq[Int]) => ((stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, given_Connection.createArrayOf(Int.name, f$proxy4.apply(value)))))): ParameterBinderFactory[Seq[Int]])
+        |}""".stripMargin
 
-    val parameterBinderWithValue = DeriveParameterBinderFactory.array[Int, Seq](_.toArray).apply(Seq(123))
+    val parameterBinderWithValue = DeriveParameterBinderFactory.arrayOf[Int, Seq](OType.Int, _.toArray).apply(Seq(123))
     parameterBinderWithValue.toString shouldEqual "ParameterBinder(value=List(123))"
   }
