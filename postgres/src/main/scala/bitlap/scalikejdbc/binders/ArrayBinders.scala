@@ -29,7 +29,7 @@ import java.sql.Connection
  *    梦境迷离
  *  @version 1.0,2023/3/8
  */
-trait ExtraBinders:
+trait ArrayBinders:
   // Iterable[String]
   given stringList2Array(using Connection): ParameterBinderFactory[List[String]] =
     DeriveParameterBinder.array[String, List](OType.String, _.toArray)
@@ -72,15 +72,7 @@ trait ExtraBinders:
     DeriveParameterBinder.array[BigDecimal, Vector](OType.BigDecimal, _.toArray)
   // Iterable[BigDecimal] end
 
-  // json
-  given type2Jsonb[T](using map: T => String): ParameterBinderFactory[T] =
-    DeriveParameterBinder.jsonb[T](map)
-  // json end
-
   // type binder
-  given json2Type[T](using map: String => T): TypeBinder[T] =
-    DeriveTypeBinder.string[T](map)
-
   given array2List[T](using map: Array[Any] => List[T]): TypeBinder[List[T]] =
     DeriveTypeBinder.array[T, List](map, List.empty[T])
 
