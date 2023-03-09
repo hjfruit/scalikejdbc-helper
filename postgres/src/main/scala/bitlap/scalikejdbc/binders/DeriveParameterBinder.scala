@@ -35,7 +35,7 @@ import scala.quoted.*
 object DeriveParameterBinder {
 
   inline def array[A, T[X] <: Iterable[X]](inline oType: OType, f: T[A] => Array[Any])(using
-                                                                                       conn: Connection
+    conn: Connection
   ): ParameterBinderFactory[T[A]] = ${ arrayImpl('{ f }, '{ conn }, '{ oType }) }
 
   inline def jsonb[T](inline f: T => String): ParameterBinderFactory[T] = ${ jsonImpl('{ f }, '{ OType.Jsonb }) }

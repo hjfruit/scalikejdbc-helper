@@ -32,7 +32,7 @@ import scala.quoted.*
  */
 object DeriveTypeBinder {
 
-  inline def array[A, T[X] <: Iterable[X]](inline f: Array[Any] => T[A], default: T[A]): TypeBinder[T[A]] = 
+  inline def array[A, T[X] <: Iterable[X]](inline f: Array[Any] => T[A], default: T[A]): TypeBinder[T[A]] =
     ${ arrayImpl('{ f }, '{ default }) }
 
   inline def string[T](inline f: String => T): TypeBinder[T] = ${ stringImpl('{ f }) }
@@ -59,7 +59,7 @@ object DeriveTypeBinder {
         else
           arr.getArray match
             case a: Array[Any] => $f(a)
-            case _           => $default
+            case _             => $default
 
       } { (resultSet: ResultSet, label: String) =>
         val arr = resultSet.getArray(label)
@@ -67,7 +67,7 @@ object DeriveTypeBinder {
         else
           arr.getArray match
             case a: Array[Any] => $f(a)
-            case _           => $default
+            case _             => $default
       }
     }
 
