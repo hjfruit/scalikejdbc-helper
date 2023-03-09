@@ -69,8 +69,9 @@ lazy val `postgres` = project
   .settings(
     name := "scalikejdbc-binders-postgres",
     libraryDependencies ++= Seq(
-      "org.postgresql"   % "postgresql"  % "42.5.4" % Provided,
-      "org.scalikejdbc" %% "scalikejdbc" % "4.0.0"
+      "org.postgresql"   % "postgresql"  % "42.5.4"  % Provided,
+      "org.scalikejdbc" %% "scalikejdbc" % "4.0.0",
+      "com.h2database"   % "h2"          % "2.1.214" % Test
     )
   )
   .settings(commonSettings)

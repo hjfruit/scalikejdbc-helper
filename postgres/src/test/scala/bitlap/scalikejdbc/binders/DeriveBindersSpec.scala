@@ -99,7 +99,7 @@ class DeriveBindersSpec extends AnyFlatSpec with Matchers:
         |      _$4$proxy1.trim()
         |    }
         |    def apply(`rs₂`: ResultSet, columnIndex: Int): String = {
-        |      val _$4$proxy2: String = `rs₂`.getString(`rs₂`.getString(columnIndex))
+        |      val _$4$proxy2: String = `rs₂`.getString(columnIndex)
         |      _$4$proxy2.trim()
         |    }
         |  }

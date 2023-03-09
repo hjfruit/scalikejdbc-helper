@@ -44,7 +44,7 @@ object DeriveTypeBinder {
           $f(rs.getString(label))
 
         def apply(rs: ResultSet, columnIndex: Int): T =
-          $f(rs.getString(rs.getString(columnIndex)))
+          $f(rs.getString(columnIndex))
     }
 
   private def arrayImpl[A, T[X]](
