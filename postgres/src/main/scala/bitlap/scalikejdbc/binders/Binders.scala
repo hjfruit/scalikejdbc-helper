@@ -43,9 +43,9 @@ trait Binders {
 
   given stringVector2Array(using Connection): ParameterBinderFactory[Vector[String]] =
     DeriveParameterBinderFactory.arrayOf[String, Vector](OType.String, _.toArray)
-  // Iterable[String] end   
+  // Iterable[String] end
 
-  // Iterable[Int]   
+  // Iterable[Int]
   given intList2Array(using Connection): ParameterBinderFactory[List[Int]] =
     DeriveParameterBinderFactory.arrayOf[Int, List](OType.Int, _.toArray)
 
@@ -79,5 +79,5 @@ trait Binders {
 
   given map2Jsonb[T](using toJsonString: T => String): ParameterBinderFactory[T] =
     DeriveParameterBinderFactory.jsonb[T](toJsonString)
-  // json end  
+  // json end
 }
