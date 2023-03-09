@@ -35,7 +35,7 @@ import scala.concurrent.{ ExecutionContext, Future }
  *    梦境迷离
  *  @version 1.0,2023/3/8
  */
-class BindersSpec extends AnyFlatSpec with Matchers:
+class DeriveBindersSpec extends AnyFlatSpec with Matchers:
 
   def toJson(mp: Map[String, String]): String =
     mp.map(kv => s"""\"${kv._1}\":\"${kv._2}\"""").mkString("{", ",", "}")
@@ -43,21 +43,21 @@ class BindersSpec extends AnyFlatSpec with Matchers:
   "DeriveParameterBinderFactory postgres json" should "ok" in {
     toJson(Map("key" -> "value")) shouldEqual "{\"key\":\"value\"}"
 
-    val jsonMap = showCode_(DeriveParameterBinderFactory.json[Map[String, String]](toJson))
+    val jsonMap = showCode_(DeriveParameterBinder.json[Map[String, String]](toJson))
     println(s"jsonMap:\n$jsonMap")
     jsonMap shouldEqual """(ParameterBinderFactory.apply[Map[String, String]](((value: Map[String, String]) => ((stmt: PreparedStatement, idx: Int) => {
                           |  val obj: PGobject = new PGobject()
-                          |  val jsonStr: String = BindersSpec.this.toJson(value)
+                          |  val jsonStr: String = DeriveBindersSpec.this.toJson(value)
                           |  obj.setType(OType.Json.name)
                           |  obj.setValue(jsonStr)
                           |  stmt.setObject(idx, obj)
                           |}))): ParameterBinderFactory[Map[String, String]])""".stripMargin
 
-    val jsonbMap = showCode_(DeriveParameterBinderFactory.jsonb[Map[String, String]](toJson))
+    val jsonbMap = showCode_(DeriveParameterBinder.jsonb[Map[String, String]](toJson))
     println(s"jsonbMap:\n$jsonbMap")
     jsonbMap shouldEqual """(ParameterBinderFactory.apply[Map[String, String]](((value: Map[String, String]) => ((stmt: PreparedStatement, idx: Int) => {
                            |  val obj: PGobject = new PGobject()
-                           |  val jsonStr: String = BindersSpec.this.toJson(value)
+                           |  val jsonStr: String = DeriveBindersSpec.this.toJson(value)
                            |  obj.setType(OType.Jsonb.name)
                            |  obj.setValue(jsonStr)
                            |  stmt.setObject(idx, obj)
@@ -67,7 +67,7 @@ class BindersSpec extends AnyFlatSpec with Matchers:
 
   "DeriveParameterBinderFactory postgres array" should "ok" in {
     given Connection = ???
-    val stringArr    = showCode_(DeriveParameterBinderFactory.arrayOf[String, List](OType.String, _.toArray))
+    val stringArr    = showCode_(DeriveParameterBinder.array[String, List](OType.String, _.toArray))
     println(s"stringArr:\n$stringArr")
     stringArr shouldEqual
       """{
@@ -76,7 +76,7 @@ class BindersSpec extends AnyFlatSpec with Matchers:
         |  (ParameterBinderFactory.apply[List[String]](((value: List[String]) => ((stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, given_Connection.createArrayOf(String.name, f$proxy3.apply(value)))))): ParameterBinderFactory[List[String]])
         |}""".stripMargin
 
-    val intArr = showCode_(DeriveParameterBinderFactory.arrayOf[Int, Seq](OType.Int, _.toArray))
+    val intArr = showCode_(DeriveParameterBinder.array[Int, Seq](OType.Int, _.toArray))
     println(s"intArr:\n$intArr")
     intArr shouldEqual
       """{
@@ -85,6 +85,45 @@ class BindersSpec extends AnyFlatSpec with Matchers:
         |  (ParameterBinderFactory.apply[Seq[Int]](((value: Seq[Int]) => ((stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, given_Connection.createArrayOf(Int.name, f$proxy4.apply(value)))))): ParameterBinderFactory[Seq[Int]])
         |}""".stripMargin
 
-    val parameterBinderWithValue = DeriveParameterBinderFactory.arrayOf[Int, Seq](OType.Int, _.toArray).apply(Seq(123))
+    val parameterBinderWithValue = DeriveParameterBinder.array[Int, Seq](OType.Int, _.toArray).apply(Seq(123))
     parameterBinderWithValue.toString shouldEqual "ParameterBinder(value=List(123))"
+  }
+
+  "DeriveTypeBinder postgres" should "ok" in {
+    val string = showCode_(DeriveTypeBinder.string(_.trim))
+    println(s"string:\n$string")
+    string shouldEqual """({
+        |  final class $anon() extends TypeBinder[String] {
+        |    def apply(rs: ResultSet, label: String): String = {
+        |      val _$4$proxy1: String = rs.getString(label)
+        |      _$4$proxy1.trim()
+        |    }
+        |    def apply(`rs₂`: ResultSet, columnIndex: Int): String = {
+        |      val _$4$proxy2: String = `rs₂`.getString(`rs₂`.getString(columnIndex))
+        |      _$4$proxy2.trim()
+        |    }
+        |  }
+        |
+        |  (new $anon(): TypeBinder[String])
+        |}: TypeBinder[String])""".stripMargin
+
+    val array = showCode_(DeriveTypeBinder.array[String, List](_.toList.map(_.toString), Nil))
+    println(s"array:\n$array")
+    array shouldEqual """(TypeBinder.apply[List[String]](((resultSet: ResultSet, idx: Int) => {
+                         |  val arr: Array = resultSet.getArray(idx)
+                         |  if (arr.==(null)) Nil else arr.getArray() match {
+                         |    case a: Array[Any] =>
+                         |      genericWrapArray[Any](a).toList.map[String](((_$6: Any) => _$6.toString()))
+                         |    case _ =>
+                         |      Nil
+                         |  }
+                         |}))(((`resultSet₂`: ResultSet, label: String) => {
+                         |  val `arr₂`: Array = `resultSet₂`.getArray(label)
+                         |  if (`arr₂`.==(null)) Nil else `arr₂`.getArray() match {
+                         |    case a: Array[Any] =>
+                         |      genericWrapArray[Any](`a₂`).toList.map[String](((`_$6₂`: Any) => `_$6₂`.toString()))
+                         |    case _ =>
+                         |      Nil
+                         |  }
+                         |})): TypeBinder[List[String]])""".stripMargin
   }

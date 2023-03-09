@@ -22,11 +22,9 @@
 package bitlap.scalikejdbc.binders
 
 import org.postgresql.util.PGobject
-import bitlap.scalikejdbc.binders.Utils.*
-import java.sql.{ Connection, PreparedStatement }
 import scala.quoted.*
 import scalikejdbc.ParameterBinderFactory
-
+import bitlap.scalikejdbc.binders.OType
 import java.sql.{ Connection, PreparedStatement }
 import scala.quoted.*
 
@@ -34,11 +32,11 @@ import scala.quoted.*
  *    梦境迷离
  *  @version 1.0,2023/3/8
  */
-object DeriveParameterBinderFactory {
+object DeriveParameterBinder {
 
-  inline def arrayOf[A, T[X] <: Iterable[X]](inline oType: OType, f: T[A] => Array[Any])(using
-    conn: Connection
-  ): ParameterBinderFactory[T[A]] = ${ customArrayImpl('{ f }, '{ conn }, '{ oType }) }
+  inline def array[A, T[X] <: Iterable[X]](inline oType: OType, f: T[A] => Array[Any])(using
+                                                                                       conn: Connection
+  ): ParameterBinderFactory[T[A]] = ${ arrayImpl('{ f }, '{ conn }, '{ oType }) }
 
   inline def jsonb[T](inline f: T => String): ParameterBinderFactory[T] = ${ jsonImpl('{ f }, '{ OType.Jsonb }) }
 
@@ -58,7 +56,7 @@ object DeriveParameterBinderFactory {
       }
     }
 
-  private def customArrayImpl[A, T[X]](
+  private def arrayImpl[A, T[X]](
     f: Expr[T[A] => Array[Any]],
     conn: Expr[Connection],
     oType: Expr[OType]
