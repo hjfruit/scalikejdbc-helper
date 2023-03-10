@@ -13,13 +13,21 @@
 
 # array
 
-> Default supported types
+- Dependency
 
+```scala
+"org.bitlap" %% "scalikejdbc-binders-postgres" % <version>
+```
+
+- `ArrayBinders` supported types
+ 
 | postgres type | scala type | support collections |
 |---------------|------------|---------------------|
 | varchar       | String     | List,Set,Seq,Vector |
 | integer       | Int        | List,Set,Seq,Vector |
 | decimal       | BigDecimal | List,Set,Seq,Vector |
+
+- Example
 
 ```scala
 final case class UserRepository() extends ArrayBinders
@@ -37,6 +45,7 @@ object UserRepositoryTable extends SQLSyntaxSupport[UserRepository] with ArrayBi
 
 # json
 
+- Example
 ```scala
 final case class UserRepository() extends JsonBinders
   // json string to map 
@@ -45,6 +54,7 @@ final case class UserRepository() extends JsonBinders
 
 # manual definition
 
+- Example
 ```scala
 given ParameterBinderFactory[List[Short]] = DeriveParameterBinder.array[Short, List](OType.Short, _.toArray)
 
