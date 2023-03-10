@@ -29,7 +29,7 @@ import scalikejdbc.{ ParameterBinderFactory, TypeBinder }
  */
 trait JsonBinders:
 
-  given type2Jsonb[T](using map: T => String): ParameterBinderFactory[T] =
+  given type2Json[T](using map: T => String): ParameterBinderFactory[T] =
     DeriveParameterBinder.jsonb[T](map)
 
   given json2Type[T](using map: String => T): TypeBinder[T] =

@@ -11,7 +11,7 @@
 
 ----
 
-# array
+# postgres
 
 - Dependency
 
@@ -19,43 +19,37 @@
 "org.bitlap" %% "scalikejdbc-binders-postgres" % <version>
 ```
 
-- `ArrayBinders` supported types
- 
-| postgres type | scala type | support collections |
-|---------------|------------|---------------------|
-| varchar       | String     | List,Set,Seq,Vector |
-| integer       | Int        | List,Set,Seq,Vector |
-| decimal       | BigDecimal | List,Set,Seq,Vector |
-| bigint        | Long       | List,Set,Seq,Vector |
+- Inherit `ArrayBinders`
+  - Supported `TypeBinder`
+  - Supported `ParameterBinderFactory`
+- Inherit `JsonBinders`
+  - Supported `TypeBinder`
+  - Supported `ParameterBinderFactory`
 
-- Example
+## ParameterBinderFactory array
+| postgres type | scala type | supported collections |
+|---------------|------------|-----------------------|
+| varchar       | String     | List,Set,Seq,Vector   |
+| integer       | Int        | List,Set,Seq,Vector   |
+| decimal       | BigDecimal | List,Set,Seq,Vector   |
+| bigint        | Long       | List,Set,Seq,Vector   |
 
-```scala
-// using ParameterBinderFactory
-final case class UserRepository() extends ArrayBinders
+## TypeBinder array
+| postgres type | scala type | supported collections | required implicit mapping function |
+|---------------|------------|-----------------------|------------------------------------|
+| all           | all        | List,Set,Seq,Vector   | `Array[Any] => T[X]`               |
 
-// using ParameterBinderFactory with autoConstruct macro
-object UserRepositoryTable extends SQLSyntaxSupport[UserRepository] with ArrayBinders:
-  def apply(up: ResultName[UserRepository])(rs: WrappedResultSet)(using connection: Connection): UserRepository =
-    autoConstruct(rs, up)
+## ParameterBinderFactory json
+| postgres type | scala type | required implicit mapping function |
+|---------------|------------|------------------------------------|
+| json          | `T`        | `String => T`                      |
 
-// using TypeBinder
-object UserRepositoryTable extends SQLSyntaxSupport[UserRepository] with ArrayBinders:
-  given Function1[Array[Any] , List[String]] = ???  // in scope
-```
+## TypeBinder json
+| postgres type | scala type | required implicit mapping function |
+|---------------|------------|------------------------------------|
+| json          | `T`        | `T => String`                      |
 
-# json
-
-- Example
-```scala
-final case class UserRepository() extends JsonBinders
-  // json string to map 
-  given Function1[String , Map[String, String]] = ???
-```
-
-# manual definition
-
-- Example
+## manual definition
 ```scala
 given ParameterBinderFactory[List[Short]] = DeriveParameterBinder.array[Short, List](OType.Short, _.toArray)
 
