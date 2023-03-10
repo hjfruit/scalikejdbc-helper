@@ -26,20 +26,21 @@
 | varchar       | String     | List,Set,Seq,Vector |
 | integer       | Int        | List,Set,Seq,Vector |
 | decimal       | BigDecimal | List,Set,Seq,Vector |
+| bigint        | Long       | List,Set,Seq,Vector |
 
 - Example
 
 ```scala
+// using ParameterBinderFactory
 final case class UserRepository() extends ArrayBinders
 
+// using ParameterBinderFactory with autoConstruct macro
 object UserRepositoryTable extends SQLSyntaxSupport[UserRepository] with ArrayBinders:
-  // using ParameterBinderFactory
   def apply(up: ResultName[UserRepository])(rs: WrappedResultSet)(using connection: Connection): UserRepository =
-    autoConstruct(rs, up) 
+    autoConstruct(rs, up)
 
-
+// using TypeBinder
 object UserRepositoryTable extends SQLSyntaxSupport[UserRepository] with ArrayBinders:
-  // using TypeBinder
   given Function1[Array[Any] , List[String]] = ???  // in scope
 ```
 
