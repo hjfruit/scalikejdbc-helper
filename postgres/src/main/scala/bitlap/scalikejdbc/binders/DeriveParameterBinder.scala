@@ -24,7 +24,7 @@ package bitlap.scalikejdbc.binders
 import org.postgresql.util.PGobject
 import scala.quoted.*
 import scalikejdbc.ParameterBinderFactory
-import bitlap.scalikejdbc.binders.OType
+import bitlap.scalikejdbc.binders.ObjectType
 import java.sql.{ Connection, PreparedStatement }
 import scala.quoted.*
 
@@ -34,15 +34,15 @@ import scala.quoted.*
  */
 object DeriveParameterBinder:
 
-  inline def array[A, T[X] <: Iterable[X]](inline oType: OType, f: T[A] => Array[Any])(using
+  inline def array[A, T[X] <: Iterable[X]](inline objectType: ObjectType, f: T[A] => Array[Any])(using
     conn: Connection
-  ): ParameterBinderFactory[T[A]] = ${ arrayImpl('{ f }, '{ conn }, '{ oType }) }
+  ): ParameterBinderFactory[T[A]] = ${ arrayImpl('{ f }, '{ conn }, '{ objectType }) }
 
-  inline def jsonb[T](inline f: T => String): ParameterBinderFactory[T] = ${ jsonImpl('{ f }, '{ OType.Jsonb }) }
+  inline def jsonb[T](inline f: T => String): ParameterBinderFactory[T] = ${ jsonImpl('{ f }, '{ ObjectType.Jsonb }) }
 
-  inline def json[T](inline f: T => String): ParameterBinderFactory[T] = ${ jsonImpl('{ f }, '{ OType.Json }) }
+  inline def json[T](inline f: T => String): ParameterBinderFactory[T] = ${ jsonImpl('{ f }, '{ ObjectType.Json }) }
 
-  private def jsonImpl[T](f: Expr[T => String], oType: Expr[OType])(using
+  private def jsonImpl[T](f: Expr[T => String], objectType: Expr[ObjectType])(using
     Quotes,
     Type[T]
   ): Expr[ParameterBinderFactory[T]] =
@@ -50,7 +50,7 @@ object DeriveParameterBinder:
       ParameterBinderFactory[T] { (value: T) => (stmt: PreparedStatement, idx: Int) =>
         val obj     = new PGobject()
         val jsonStr = $f(value)
-        obj.setType($oType.name)
+        obj.setType($objectType.name)
         obj.setValue(jsonStr)
         stmt.setObject(idx, obj)
       }
@@ -59,11 +59,11 @@ object DeriveParameterBinder:
   private def arrayImpl[A, T[X]](
     f: Expr[T[A] => Array[Any]],
     conn: Expr[Connection],
-    oType: Expr[OType]
+    objectType: Expr[ObjectType]
   )(using quotes: Quotes, tpa: Type[A], tpt: Type[T]): Expr[ParameterBinderFactory[T[A]]] =
     import quotes.reflect.*
     '{
       ParameterBinderFactory[T[A]] { (value: T[A]) => (stmt: PreparedStatement, idx: Int) =>
-        stmt.setArray(idx, $conn.createArrayOf($oType.name, $f(value)))
+        stmt.setArray(idx, $conn.createArrayOf($objectType.name, $f(value)))
       }
     }

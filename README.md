@@ -49,9 +49,9 @@
 |---------------|------------|------------------------------------|
 | json          | `T`        | `T => String`                      |
 
-## manual definition
+## Manual definition
 ```scala
-given ParameterBinderFactory[List[Short]] = DeriveParameterBinder.array[Short, List](OType.Short, _.toArray)
+given ParameterBinderFactory[List[Short]] = DeriveParameterBinder.array[Short, List](ObjectType.Short, _.toArray)
 
 given ParameterBinderFactory[Map[String, String]] = DeriveParameterBinder.json[Map[String, String]](toJson)
 

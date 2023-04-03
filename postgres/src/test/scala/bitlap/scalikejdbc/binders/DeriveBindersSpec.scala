@@ -48,7 +48,7 @@ class DeriveBindersSpec extends AnyFlatSpec with Matchers:
     jsonMap shouldEqual """(ParameterBinderFactory.apply[Map[String, String]](((value: Map[String, String]) => ((stmt: PreparedStatement, idx: Int) => {
                           |  val obj: PGobject = new PGobject()
                           |  val jsonStr: String = DeriveBindersSpec.this.toJson(value)
-                          |  obj.setType(OType.Json.name)
+                          |  obj.setType(ObjectType.Json.name)
                           |  obj.setValue(jsonStr)
                           |  stmt.setObject(idx, obj)
                           |}))): ParameterBinderFactory[Map[String, String]])""".stripMargin
@@ -58,7 +58,7 @@ class DeriveBindersSpec extends AnyFlatSpec with Matchers:
     jsonbMap shouldEqual """(ParameterBinderFactory.apply[Map[String, String]](((value: Map[String, String]) => ((stmt: PreparedStatement, idx: Int) => {
                            |  val obj: PGobject = new PGobject()
                            |  val jsonStr: String = DeriveBindersSpec.this.toJson(value)
-                           |  obj.setType(OType.Jsonb.name)
+                           |  obj.setType(ObjectType.Jsonb.name)
                            |  obj.setValue(jsonStr)
                            |  stmt.setObject(idx, obj)
                            |}))): ParameterBinderFactory[Map[String, String]])""".stripMargin
@@ -67,7 +67,7 @@ class DeriveBindersSpec extends AnyFlatSpec with Matchers:
 
   "DeriveParameterBinderFactory postgres array" should "ok" in {
     given Connection = ???
-    val stringArr    = showCode_(DeriveParameterBinder.array[String, List](OType.String, _.toArray))
+    val stringArr    = showCode_(DeriveParameterBinder.array[String, List](ObjectType.String, _.toArray))
     println(s"stringArr:\n$stringArr")
     stringArr shouldEqual
       """{
@@ -76,7 +76,7 @@ class DeriveBindersSpec extends AnyFlatSpec with Matchers:
         |  (ParameterBinderFactory.apply[List[String]](((value: List[String]) => ((stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, given_Connection.createArrayOf(String.name, f$proxy3.apply(value)))))): ParameterBinderFactory[List[String]])
         |}""".stripMargin
 
-    val intArr = showCode_(DeriveParameterBinder.array[Int, Seq](OType.Int, _.toArray))
+    val intArr = showCode_(DeriveParameterBinder.array[Int, Seq](ObjectType.Int, _.toArray))
     println(s"intArr:\n$intArr")
     intArr shouldEqual
       """{
@@ -85,7 +85,7 @@ class DeriveBindersSpec extends AnyFlatSpec with Matchers:
         |  (ParameterBinderFactory.apply[Seq[Int]](((value: Seq[Int]) => ((stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, given_Connection.createArrayOf(Int.name, f$proxy4.apply(value)))))): ParameterBinderFactory[Seq[Int]])
         |}""".stripMargin
 
-    val parameterBinderWithValue = DeriveParameterBinder.array[Int, Seq](OType.Int, _.toArray).apply(Seq(123))
+    val parameterBinderWithValue = DeriveParameterBinder.array[Int, Seq](ObjectType.Int, _.toArray).apply(Seq(123))
     parameterBinderWithValue.toString shouldEqual "ParameterBinder(value=List(123))"
   }
 

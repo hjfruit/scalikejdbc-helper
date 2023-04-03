@@ -1,5 +1,3 @@
-import sbt.*
-
 val scala3Version    = "3.2.2"
 val scalatestVersion = "3.2.14"
 ThisBuild / resolvers ++= Seq(
@@ -15,7 +13,7 @@ inThisBuild(
     sonatypeRepository :=
       "https://s01.oss.sonatype.org/service/local",
     homepage := Some(url("https://github.com/bitlap/bitlap")),
-    licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
       Developer(
         id = "dreamylost",
@@ -42,9 +40,7 @@ lazy val commonSettings =
     publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
     scalacOptions ++= Seq(
       /** "-Ycheck:all",** */
-      "-language:dynamics",
       "-explain",
-      "-release:8",
       "unchecked",
       "-deprecation",
       "-feature",
