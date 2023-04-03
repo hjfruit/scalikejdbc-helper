@@ -24,12 +24,12 @@ jobs:
       - name: Cache scala dependencies
         uses: coursier/cache-action@v6
 
+      - name: Build
+        run: sbt compile
+        
       - name: Checking Code style
         run: sbt check
 
-      - name: Build and Publish to Local
-        run: sbt +publishLocal
-  
   test:
     runs-on: ubuntu-latest
     strategy:
