@@ -1,10 +1,8 @@
 # scalikejdbc-helper
 
-![CI][Badge-CI]  [![codecov][Badge-Codecov]][Link-Codecov] [![Nexus][Badge-Releases]][Link-Releases] 
+![CI][Badge-CI]  [![Nexus][Badge-Releases]][Link-Releases] 
 
 [Badge-CI]: https://github.com/bitlap/scalikejdbc-helper/actions/workflows/ScalaCI.yml/badge.svg
-[Badge-Codecov]: https://codecov.io/gh/bitlap/scalikejdbc-helper/branch/master/graph/badge.svg?token=IA596YRTOT
-[Link-Codecov]: https://codecov.io/gh/bitlap/scalikejdbc-helper
 [Badge-Releases]: https://img.shields.io/nexus/r/org.bitlap/scalikejdbc-helper-postgres_3?server=https%3A%2F%2Fs01.oss.sonatype.org
 [Link-Releases]: https://s01.oss.sonatype.org/content/repositories/releases/org/bitlap/scalikejdbc-helper-postgres_3/
 
