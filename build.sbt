@@ -5,7 +5,7 @@ ThisBuild / resolvers ++= Seq(
   "Sonatype OSS Snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots/",
   "Sonatype OSS Releases" at "https://s01.oss.sonatype.org/content/repositories/releases"
 )
-
+ThisBuild / version := "0.1.0"
 inThisBuild(
   List(
     organization           := "org.bitlap",
