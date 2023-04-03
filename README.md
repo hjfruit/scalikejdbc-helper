@@ -56,3 +56,37 @@ given ParameterBinderFactory[Map[String, String]] = DeriveParameterBinder.json[M
 
 given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.toList.map(s => BigDecimal(s.toString)), Nil)
 ```
+
+## `ON CONFLICT`
+
+- Inherit `bitlap.scalikejdbc.PostgresSQLSyntaxSupport`
+``` scala
+  def upsetMetric(
+    metric: MetricPO
+  ): SQLUpdate =
+    withSQL {
+      insert
+        .into(MetricPO)
+        .namedValues(
+          column.id            -> metric.id,
+          column.key           -> metric.key,
+          column.level         -> metric.level,
+          column.canonicalName -> metric.canonicalName,
+          column.displayName   -> metric.displayName,
+          column.granularity   -> metric.granularity,
+          column.measureUnit   -> metric.measureUnit,
+          column.createBy      -> metric.createBy,
+          column.createTime    -> metric.createTime,
+          column.updateBy      -> metric.updateBy,
+          column.updateTime    -> metric.updateTime
+        ).onConflictUpdate("metric_udx")(
+        column.level -> metric.level,
+        column.canonicalName -> metric.canonicalName,
+        column.displayName -> metric.displayName,
+        column.granularity -> metric.granularity,
+        column.measureUnit -> metric.measureUnit,
+        column.updateBy -> metric.updateBy,
+        column.updateTime -> metric.updateTime
+      )
+    }.update
+```
