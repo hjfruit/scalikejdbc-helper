@@ -3,7 +3,9 @@ create table testdb.t_user
 (
     id            varchar,
     varchar_array varchar array,
-    decimal_array decimal array
+    decimal_array decimal array,
+    int_array integer array default array[],
+    long_array bigint array default array[]
 );
 
 insert into testdb.t_user(id, decimal_array, varchar_array)

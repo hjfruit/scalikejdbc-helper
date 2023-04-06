@@ -61,14 +61,20 @@ class BinderSpec extends AnyFlatSpec with Matchers {
     ConnectionPool.add("default", "jdbc:h2:mem:testdb", "", "")
     DB.localTx { implicit session =>
       given Connection = session.connection
-      User.insertUser("3", List("123", "234"), List()).apply()
+      User.insertUser("3", List(1), List(1L), List("123", "234"), List()).apply()
     }
-    val res = stmt.executeQuery("select varchar_array from `testdb`.t_user where id = '3'")
+    val res = stmt.executeQuery("select int_array,long_array,varchar_array from `testdb`.t_user where id = '3'")
     res.next()
-    val typeBinder = DeriveTypeBinder.array[String, List](_.toList.map(_.toString), Nil)
+    val stringTypeBinder = DeriveTypeBinder.array[String, List](_.toList.map(_.toString), Nil)
+    val intTypeBinder    = DeriveTypeBinder.array[Int, List](_.toList.map(_.toString.toInt), Nil)
+    val longTypeBinder   = DeriveTypeBinder.array[Long, List](_.toList.map(_.toString.toLong), Nil)
 
-    val decimalLists = typeBinder(res, 1)
-    println(decimalLists)
-    decimalLists shouldEqual List("123", "234")
+    val intList = intTypeBinder(res, 1)
+    println(intList)
+    intList shouldEqual List(1)
+
+    val stringList = stringTypeBinder(res, 3)
+    println(stringList)
+    stringList shouldEqual List("123", "234")
   }
 }

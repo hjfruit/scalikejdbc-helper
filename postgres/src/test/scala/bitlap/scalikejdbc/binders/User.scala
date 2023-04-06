@@ -9,7 +9,9 @@ import java.sql.Connection
 final case class User(
   id: String,
   varcharArray: List[String],
-  decimalArray: List[BigDecimal]
+  decimalArray: List[BigDecimal],
+  intArray: List[Int],
+  longArray: List[Long]
 )
 
 object User extends SQLSyntaxSupport[User], ArrayBinders:
@@ -28,13 +30,21 @@ object User extends SQLSyntaxSupport[User], ArrayBinders:
 
   val user = User.syntax("u")
 
-  def insertUser(id: String, varcharArray: List[String], decimalArray: List[BigDecimal])(using Connection): SQLUpdate =
+  def insertUser(
+    id: String,
+    intArray: List[Int],
+    longArray: List[Long],
+    varcharArray: List[String],
+    decimalArray: List[BigDecimal]
+  )(using Connection): SQLUpdate =
     withSQL {
       insert
         .into(User)
         .namedValues(
           userColumn.id           -> id,
           userColumn.varcharArray -> varcharArray,
-          userColumn.decimalArray -> decimalArray
+          userColumn.decimalArray -> decimalArray,
+          userColumn.intArray     -> intArray,
+          userColumn.longArray    -> longArray
         )
     }.update
