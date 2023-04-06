@@ -24,7 +24,7 @@ package bitlap.scalikejdbc.binders
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
-
+import scalikejdbc.*
 import java.sql.{ Connection, DriverManager }
 
 /** @author
@@ -55,5 +55,20 @@ class BinderSpec extends AnyFlatSpec with Matchers {
 
     val decimalLists = typeBinder(res, 1)
     decimalLists shouldEqual List(0.1, 0.2)
+  }
+
+  "DeriveTypeBinder insert BigDecimal List" should "ok" in {
+    ConnectionPool.add("default", "jdbc:h2:mem:testdb", "", "")
+    DB.localTx { implicit session =>
+      given Connection = session.connection
+      User.insertUser("3", List("123", "234"), List()).apply()
+    }
+    val res = stmt.executeQuery("select varchar_array from `testdb`.t_user where id = '3'")
+    res.next()
+    val typeBinder = DeriveTypeBinder.array[String, List](_.toList.map(_.toString), Nil)
+
+    val decimalLists = typeBinder(res, 1)
+    println(decimalLists)
+    decimalLists shouldEqual List("123", "234")
   }
 }
