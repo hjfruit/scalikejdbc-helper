@@ -23,11 +23,9 @@ package bitlap.scalikejdbc.binders
 
 import scalikejdbc.*
 
-import java.time.Instant
 import bitlap.scalikejdbc.binders.ArrayBinders
 import bitlap.scalikejdbc.PostgresSQLSyntaxSupport
 import bitlap.scalikejdbc.binders.User.*
-import com.typesafe.config.*
 
 import java.sql.Connection
 

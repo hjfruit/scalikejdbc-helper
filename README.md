@@ -17,11 +17,14 @@
 ```
 
 - Inherit `ArrayBinders`
-  - Supported `TypeBinder`
-  - Supported `ParameterBinderFactory`
+  - Support `TypeBinder`
+  - Support `ParameterBinderFactory`
 - Inherit `JsonBinders`
-  - Supported `TypeBinder`
-  - Supported `ParameterBinderFactory`
+  - Support `TypeBinder`
+  - Support `ParameterBinderFactory`
+- Inherit `bitlap.scalikejdbc.PostgresSQLSyntaxSupport`
+  - Support Batch Insert
+  - Support `ON CONFLICT`
 
 ## ParameterBinderFactory array
 | postgres type | scala type | supported collections |
@@ -55,9 +58,11 @@ given ParameterBinderFactory[Map[String, String]] = DeriveParameterBinder.json[M
 given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.toList.map(s => BigDecimal(s.toString)), Nil)
 ```
 
-## `ON CONFLICT`
+## PostgresSQLSyntaxSupport
 
 - Inherit `bitlap.scalikejdbc.PostgresSQLSyntaxSupport`
+
+### ON CONFLICT
 ``` scala
   def upsetMetric(
     metric: MetricPO
@@ -77,7 +82,7 @@ given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.
           column.createTime    -> metric.createTime,
           column.updateBy      -> metric.updateBy,
           column.updateTime    -> metric.updateTime
-        ).onConflictUpdate("metric_udx")(
+        ).onConflictUpdate(column.id)(
         column.level -> metric.level,
         column.canonicalName -> metric.canonicalName,
         column.displayName -> metric.displayName,

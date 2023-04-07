@@ -35,7 +35,7 @@ import scala.collection.immutable.List
  *    梦境迷离
  *  @version 1.0,2023/3/8
  */
-class BinderSpec extends AnyFlatSpec with Matchers with PostgresSQLSyntaxSupport with ArrayBinders:
+class PostgresSQLSpec extends AnyFlatSpec with Matchers with PostgresSQLSyntaxSupport with ArrayBinders:
 
   ConnectionPool.add("default", "jdbc:h2:mem:testdb", "", "")
   val conn = DriverManager.getConnection(
@@ -153,54 +153,50 @@ class BinderSpec extends AnyFlatSpec with Matchers with PostgresSQLSyntaxSupport
     stringList shouldEqual List("444", "444")
   }
 
-//  "multipleValuesPlus and on conflict method" should "ok" in {
-//    DB.localTx { implicit session =>
-//      given Connection = session.connection
-//
-//      val usersNameValues = twoUsers.map(u =>
-//        List(
-//          User.userColumn.id           -> u.id,
-//          User.userColumn.varcharArray -> u.varcharArray,
-//          User.userColumn.decimalArray -> u.decimalArray
-//        )
-//      )
-//
-//      val sql: InsertSQLBuilder =
-//        insert
-//          .into(User)
-//          .columns(
-//            User.userColumn.id,
-//            User.userColumn.varcharArray,
-//            User.userColumn.decimalArray
-//          )
-//          .multipleValuesPlus(usersNameValues*)
-//      withSQL(sql).update.apply()
-//
-//      val usersNameValuesConflict = twoUsers.map(u =>
-//        List(
-//          User.userColumn.id -> u.id,
-//          User.userColumn.varcharArray -> List("conflictListValues1", "conflictListValues2"),
-//          User.userColumn.decimalArray -> u.decimalArray
-//        )
-//      )
-//
-//      val sqlConflict: InsertSQLBuilder =
-//        insert
-//          .into(User)
-//          .columns(
-//            User.userColumn.id,
-//            User.userColumn.varcharArray,
-//            User.userColumn.decimalArray
-//          )
-//          .multipleValuesPlus(usersNameValuesConflict *)
-//          .onConflictUpdate(User.userColumn.id) {
-//            User.userColumn.varcharArray
-//          }
-//      withSQL(sqlConflict).update.apply()
-//    }
-//    val res = stmt.executeQuery("select varchar_array from testdb.t_user where id = '6'")
-//    res.next()
-//    val stringTypeBinder = DeriveTypeBinder.array[String, List](_.toList.map(_.toString), Nil)
-//    val stringList       = stringTypeBinder(res, 1)
-//    stringList shouldEqual List("conflictListValues1", "conflictListValues2")
-//  }
+  "multipleValuesPlus and on conflict method" should "ok" in {
+    DB.localTx { implicit session =>
+      given Connection = session.connection
+
+      val usersNameValues = twoUsers.map(u =>
+        List(
+          User.userColumn.id           -> u.id,
+          User.userColumn.varcharArray -> u.varcharArray,
+          User.userColumn.decimalArray -> u.decimalArray
+        )
+      )
+
+      val sql: InsertSQLBuilder =
+        insert
+          .into(User)
+          .columns(
+            User.userColumn.id,
+            User.userColumn.varcharArray,
+            User.userColumn.decimalArray
+          )
+          .multipleValuesPlus(usersNameValues*)
+
+      sql.toSQL.statement shouldEqual "insert into testdb.t_user (id, varchar_array, decimal_array) values (?, ?, ?), (?, ?, ?)"
+
+      val usersNameValuesConflict = twoUsers.map(u =>
+        List(
+          User.userColumn.id           -> u.id,
+          User.userColumn.varcharArray -> List("conflictListValues1", "conflictListValues2"),
+          User.userColumn.decimalArray -> u.decimalArray
+        )
+      )
+
+      val sqlConflict: InsertSQLBuilder =
+        insert
+          .into(User)
+          .columns(
+            User.userColumn.id,
+            User.userColumn.varcharArray,
+            User.userColumn.decimalArray
+          )
+          .multipleValuesPlus(usersNameValuesConflict*)
+          .onConflictUpdate(User.userColumn.id) {
+            User.userColumn.varcharArray
+          }
+      sqlConflict.toSQL.statement shouldEqual "insert into testdb.t_user (id, varchar_array, decimal_array) values (?, ?, ?), (?, ?, ?) ON CONFLICT (id) DO UPDATE SET varchar_array = EXCLUDED.varchar_array"
+    }
+  }
