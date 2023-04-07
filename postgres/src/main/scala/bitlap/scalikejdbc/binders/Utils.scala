@@ -29,6 +29,20 @@ import scala.quoted.{ Expr, Quotes, Type }
  */
 object Utils:
 
+  def lowerUnderscore(camelCaseStr: String): String = {
+    if (camelCaseStr == null) return null
+    val charArray = camelCaseStr.toCharArray
+    val buffer    = new StringBuffer
+    var i         = 0
+    val l         = charArray.length
+    while (i < l) {
+      if (charArray(i) >= 65 && charArray(i) <= 90) buffer.append("_").append((charArray(i).toInt + 32).toChar)
+      else buffer.append(charArray(i))
+      i += 1
+    }
+    buffer.toString
+  }
+
   inline def showCode_[A](inline a: A): String = ${ showCode[A]('{ a }) }
 
   def showCode[A: Type](a: Expr[A])(using quotes: Quotes): Expr[String] =

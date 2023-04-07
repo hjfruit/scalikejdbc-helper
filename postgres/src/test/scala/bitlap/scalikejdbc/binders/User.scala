@@ -1,9 +1,34 @@
+/*
+ * Copyright (c) 2023 bitlap
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package bitlap.scalikejdbc.binders
 
 import scalikejdbc.*
 
 import java.time.Instant
 import bitlap.scalikejdbc.binders.ArrayBinders
+import bitlap.scalikejdbc.PostgresSQLSyntaxSupport
+import bitlap.scalikejdbc.binders.User.*
+import com.typesafe.config.*
+
 import java.sql.Connection
 
 final case class User(
@@ -14,7 +39,7 @@ final case class User(
   longArray: List[Long]
 )
 
-object User extends SQLSyntaxSupport[User], ArrayBinders:
+object User extends SQLSyntaxSupport[User], ArrayBinders, PostgresSQLSyntaxSupport:
 
   implicit def arrayStringMapping: Array[Any] => List[String] = a =>
     a.map(ae =>
@@ -31,20 +56,16 @@ object User extends SQLSyntaxSupport[User], ArrayBinders:
   val user = User.syntax("u")
 
   def insertUser(
-    id: String,
-    intArray: List[Int],
-    longArray: List[Long],
-    varcharArray: List[String],
-    decimalArray: List[BigDecimal]
+    user: User
   )(using Connection): SQLUpdate =
     withSQL {
       insert
         .into(User)
         .namedValues(
-          userColumn.id           -> id,
-          userColumn.varcharArray -> varcharArray,
-          userColumn.decimalArray -> decimalArray,
-          userColumn.intArray     -> intArray,
-          userColumn.longArray    -> longArray
+          userColumn.id           -> user.id,
+          userColumn.varcharArray -> user.varcharArray,
+          userColumn.decimalArray -> user.decimalArray,
+          userColumn.intArray     -> user.intArray,
+          userColumn.longArray    -> user.longArray
         )
     }.update

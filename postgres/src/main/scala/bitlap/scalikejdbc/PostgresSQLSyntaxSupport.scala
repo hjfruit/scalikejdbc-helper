@@ -21,22 +21,51 @@
 
 package bitlap.scalikejdbc
 
+import bitlap.scalikejdbc.binders.Utils
 import scalikejdbc.*
+import scalikejdbc.interpolation.SQLSyntax.join
+
+import java.sql.Connection
+import scala.Product2
 
 trait PostgresSQLSyntaxSupport:
 
   extension (self: InsertSQLBuilder)
-    def onConflictUpdate(constraint: String)(columnsAndValues: (SQLSyntax, Any)*): InsertSQLBuilder = {
-      val cvs = columnsAndValues map { case (c, v) =>
-        sqls"$c = $v"
+    def onConflictUpdate(constraintColumns: SQLSyntax*)(columnsAndValues: SQLSyntax*): InsertSQLBuilder =
+      val cvs = columnsAndValues map { c =>
+        sqls"$c = EXCLUDED.$c"
       }
       self.append(
-        sqls"ON CONFLICT ON CONSTRAINT ${SQLSyntax.createUnsafely(constraint)} DO UPDATE SET ${sqls.csv(cvs: _*)}"
+        sqls"ON CONFLICT (${sqls.csv(constraintColumns: _*)}) DO UPDATE SET ${sqls.csv(cvs: _*)}"
       )
-    }
 
     def onConflictDoNothing(): InsertSQLBuilder = self.append(sqls"ON CONFLICT DO NOTHING")
 
-  extension (self: sqls.type) def values(column: SQLSyntax): SQLSyntax = sqls"values($column)"
+    def multipleValuesPlus(
+      multipleValues: collection.Seq[(SQLSyntax, ParameterBinder)]*
+    ): InsertSQLBuilder = {
+      val vs = multipleValues match {
+        case Nil => Seq(sqls"()")
+        case ss  => ss.map(s => sqls"(${sqls.csv(s.map(v => sqls"${v._2}").toList: _*)})")
+      }
+      self.copy(sql = sqls"${self.sql} values ${sqls.join(vs, sqls",", false)}")
+    }
+
+  end extension
+
+  extension (self: sqls.type) def values(column: SQLSyntax): SQLSyntax = sqls"VALUES($column)"
+
+  /** Batch insert with name values
+   */
+  def batchInsertNameValues(table: SQLSyntaxSupport[_], entities: List[(SQLSyntax, ParameterBinder)]*)(using
+    Connection
+  ): SQLBatch =
+    assert(entities.nonEmpty)
+    val sys         = sqls.join(entities.map(f => sqls.csv(f.map(f => sqls"$f"): _*)), sqls",", false)
+    val nameColumns = entities.head.map(e => Utils.lowerUnderscore(e._1.value)).mkString(",")
+    val s           = SQL(s"""INSERT INTO ${table.tableNameWithSchema} ($nameColumns) VALUES(${sys.value})""")
+    println(s.statement)
+    SQL(s"""INSERT INTO ${table.tableNameWithSchema} ($nameColumns) VALUES(${sys.value})""")
+      .batch(entities.map(_.map(f => f._2))*)
 
 end PostgresSQLSyntaxSupport

@@ -8,6 +8,8 @@ create table testdb.t_user
     long_array bigint array default array[]
 );
 
+create unique index udxOrPk on testdb.t_user (id);
+
 insert into testdb.t_user(id, decimal_array, varchar_array)
 values ('1', array[0.1, 0.2], array['a', 'b']);
 

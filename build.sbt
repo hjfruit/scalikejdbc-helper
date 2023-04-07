@@ -66,7 +66,8 @@ lazy val `postgres` = project
     libraryDependencies ++= Seq(
       "org.postgresql"   % "postgresql"  % "42.5.4"  % Provided,
       "org.scalikejdbc" %% "scalikejdbc" % "4.0.0",
-      "com.h2database"   % "h2"          % "2.1.214" % Test
+      "com.h2database"   % "h2"          % "2.1.214" % Test,
+      "com.typesafe"     % "config"      % "1.4.2"   % Test
     )
   )
   .settings(commonSettings)
