@@ -83,13 +83,35 @@ given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.
           column.updateBy      -> metric.updateBy,
           column.updateTime    -> metric.updateTime
         ).onConflictUpdate(column.id)(
-        column.level -> metric.level,
-        column.canonicalName -> metric.canonicalName,
-        column.displayName -> metric.displayName,
-        column.granularity -> metric.granularity,
-        column.measureUnit -> metric.measureUnit,
-        column.updateBy -> metric.updateBy,
-        column.updateTime -> metric.updateTime
+          column.level,
+          column.canonicalName,
+          column.displayName,
+          column.granularity,
+          column.measureUnit,
+          column.updateBy,
+          column.updateTime
       )
     }.update
+```
+
+### Batch Insert
+
+``` scala
+  def batchCreateMetricRelation(entities: List[MetricRelationshipPO]): SQLUpdate =
+    val values = entities.map(entity =>
+      List(
+        relationColumn.metricId -> entity.metricId,
+        relationColumn.parentId -> entity.parentId
+      )
+    )
+
+    val sql: InsertSQLBuilder =
+      insert
+        .into(MetricRelationshipPO)
+        .columns(
+          relationColumn.metricId,
+          relationColumn.parentId
+        )
+        .multipleValuesPlus(values*)
+    withSQL(sql).update
 ```
