@@ -21,7 +21,7 @@
 
 package bitlap.scalikejdbc.binders
 
-import scalikejdbc.{ ParameterBinderFactory, TypeBinder }
+import scalikejdbc.*
 
 import java.sql.Connection
 

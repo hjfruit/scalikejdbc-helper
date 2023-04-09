@@ -90,7 +90,7 @@ class DeriveBindersSpec extends AnyFlatSpec with Matchers:
   }
 
   "DeriveTypeBinder postgres" should "ok" in {
-    val string = showCode_(DeriveTypeBinder.string(_.trim))
+    val string = showCode_(DeriveTypeBinder.json(_.trim))
     println(s"string:\n$string")
     string shouldEqual """({
         |  final class $anon() extends TypeBinder[String] {

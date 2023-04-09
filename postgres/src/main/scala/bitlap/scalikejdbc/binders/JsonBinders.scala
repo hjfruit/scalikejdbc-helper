@@ -21,7 +21,7 @@
 
 package bitlap.scalikejdbc.binders
 
-import scalikejdbc.{ ParameterBinderFactory, TypeBinder }
+import scalikejdbc.*
 
 /** @author
  *    梦境迷离
@@ -33,4 +33,4 @@ trait JsonBinders:
     DeriveParameterBinder.jsonb[T](map)
 
   given json2Type[T](using map: String => T): TypeBinder[T] =
-    DeriveTypeBinder.string[T](map)
+    DeriveTypeBinder.json[T](map)

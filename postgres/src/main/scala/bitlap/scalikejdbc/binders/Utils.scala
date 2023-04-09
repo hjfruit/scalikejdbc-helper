@@ -21,7 +21,7 @@
 
 package bitlap.scalikejdbc.binders
 
-import scala.quoted.{ Expr, Quotes, Type }
+import scala.quoted.*
 
 /** @author
  *    梦境迷离

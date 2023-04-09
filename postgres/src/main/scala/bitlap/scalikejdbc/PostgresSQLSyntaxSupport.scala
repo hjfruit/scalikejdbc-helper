@@ -23,14 +23,16 @@ package bitlap.scalikejdbc
 
 import bitlap.scalikejdbc.binders.Utils
 import scalikejdbc.*
-import scalikejdbc.interpolation.SQLSyntax.join
-
-import java.sql.Connection
-import scala.Product2
 
 trait PostgresSQLSyntaxSupport:
 
   extension (self: InsertSQLBuilder)
+
+    /** Insert and `ON CONFLICT ... DO UPDATE SET ...`.
+     *
+     *  It also supports Array values by [[bitlap.scalikejdbc.binders.ArrayBinders]], and supports Json by
+     *  [[bitlap.scalikejdbc.binders.JsonBinders]].
+     */
     def onConflictUpdate(constraintColumns: SQLSyntax*)(columnsAndValues: SQLSyntax*): InsertSQLBuilder =
       val cvs = columnsAndValues map { c =>
         sqls"$c = EXCLUDED.$c"
@@ -39,8 +41,15 @@ trait PostgresSQLSyntaxSupport:
         sqls"ON CONFLICT (${sqls.csv(constraintColumns: _*)}) DO UPDATE SET ${sqls.csv(cvs: _*)}"
       )
 
+    /** Insert and `ON CONFLICT DO NOTHING`
+     */
     def onConflictDoNothing(): InsertSQLBuilder = self.append(sqls"ON CONFLICT DO NOTHING")
 
+    /** Insert multiple values with name.
+     *
+     *  It also supports Array values by [[bitlap.scalikejdbc.binders.ArrayBinders]], and supports Json by
+     *  [[bitlap.scalikejdbc.binders.JsonBinders]].
+     */
     def multipleValuesPlus(
       multipleValues: collection.Seq[(SQLSyntax, ParameterBinder)]*
     ): InsertSQLBuilder = {
@@ -53,19 +62,16 @@ trait PostgresSQLSyntaxSupport:
 
   end extension
 
-  extension (self: sqls.type) def values(column: SQLSyntax): SQLSyntax = sqls"VALUES($column)"
-
-  /** Batch insert with name values
+  /** Batch insert with name values.
+   *
+   *  It also supports Array values by [[bitlap.scalikejdbc.binders.ArrayBinders]], and supports Json by
+   *  [[bitlap.scalikejdbc.binders.JsonBinders]].
    */
-  def batchInsertNameValues(table: SQLSyntaxSupport[_], entities: List[(SQLSyntax, ParameterBinder)]*)(using
-    Connection
-  ): SQLBatch =
+  def batchInsertNameValues(table: SQLSyntaxSupport[_], entities: List[(SQLSyntax, ParameterBinder)]*): SQLBatch =
     assert(entities.nonEmpty)
-    val sys         = sqls.join(entities.map(f => sqls.csv(f.map(f => sqls"$f"): _*)), sqls",", false)
-    val nameColumns = entities.head.map(e => Utils.lowerUnderscore(e._1.value)).mkString(",")
-    val s           = SQL(s"""INSERT INTO ${table.tableNameWithSchema} ($nameColumns) VALUES(${sys.value})""")
-    println(s.statement)
-    SQL(s"""INSERT INTO ${table.tableNameWithSchema} ($nameColumns) VALUES(${sys.value})""")
+    val valuesSyntax = sqls.csv(entities.map(f => sqls.csv(f.map(f => sqls"$f"): _*)): _*)
+    val nameColumns  = entities.head.map(e => Utils.lowerUnderscore(e._1.value)).mkString(",")
+    SQL(s"""INSERT INTO ${table.tableNameWithSchema} ($nameColumns) VALUES(${valuesSyntax.value})""")
       .batch(entities.map(_.map(f => f._2))*)
 
 end PostgresSQLSyntaxSupport

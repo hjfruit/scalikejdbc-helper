@@ -35,7 +35,7 @@ object DeriveTypeBinder:
   inline def array[A, T[X] <: Iterable[X]](inline f: Array[Any] => T[A], default: T[A]): TypeBinder[T[A]] =
     ${ arrayImpl('{ f }, '{ default }) }
 
-  inline def string[T](inline f: String => T): TypeBinder[T] = ${ stringImpl('{ f }) }
+  inline def json[T](inline f: String => T): TypeBinder[T] = ${ stringImpl('{ f }) }
 
   private def stringImpl[T](f: Expr[String => T])(using Quotes, Type[T]): Expr[TypeBinder[T]] =
     '{

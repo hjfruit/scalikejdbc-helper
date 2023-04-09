@@ -25,7 +25,7 @@ import org.postgresql.util.PGobject
 import scala.quoted.*
 import scalikejdbc.ParameterBinderFactory
 import bitlap.scalikejdbc.binders.ObjectType
-import java.sql.{ Connection, PreparedStatement }
+import java.sql.{ Array as _, _ }
 import scala.quoted.*
 
 /** @author
