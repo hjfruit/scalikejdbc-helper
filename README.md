@@ -72,22 +72,13 @@ given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.
         .into(MetricPO)
         .namedValues(
           column.id            -> metric.id,
-          column.key           -> metric.key,
-          column.level         -> metric.level,
-          column.canonicalName -> metric.canonicalName,
           column.displayName   -> metric.displayName,
-          column.granularity   -> metric.granularity,
-          column.measureUnit   -> metric.measureUnit,
           column.createBy      -> metric.createBy,
           column.createTime    -> metric.createTime,
           column.updateBy      -> metric.updateBy,
           column.updateTime    -> metric.updateTime
         ).onConflictUpdate(column.id)(
-          column.level,
-          column.canonicalName,
           column.displayName,
-          column.granularity,
-          column.measureUnit,
           column.updateBy,
           column.updateTime
       )
