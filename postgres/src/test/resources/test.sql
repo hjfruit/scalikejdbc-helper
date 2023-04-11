@@ -4,8 +4,8 @@ create table testdb.t_user
     id            varchar,
     varchar_array varchar array,
     decimal_array decimal array,
-    int_array integer array default array[],
-    long_array bigint array default array[]
+    int_array     integer[] default ARRAY[]:: integer [],
+    long_array    bigint[] default ARRAY[]:: integer []
 );
 
 create unique index udxOrPk on testdb.t_user (id);

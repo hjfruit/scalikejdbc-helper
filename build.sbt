@@ -65,9 +65,9 @@ lazy val `postgres` = project
   .settings(
     name := "scalikejdbc-helper-postgres",
     libraryDependencies ++= Seq(
-      "org.postgresql"   % "postgresql"  % "42.5.4"  % Provided,
-      "org.scalikejdbc" %% "scalikejdbc" % "4.0.0",
-      "com.h2database"   % "h2"          % "2.1.214" % Test
+      "org.postgresql"   % "postgresql"        % "42.5.4" % Provided,
+      "org.scalikejdbc" %% "scalikejdbc"       % "4.0.0",
+      "io.zonky.test"    % "embedded-postgres" % "2.0.3"
     )
   )
   .settings(commonSettings)

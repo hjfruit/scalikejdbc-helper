@@ -23,11 +23,13 @@ package bitlap.scalikejdbc.binders
 
 import bitlap.scalikejdbc.PostgresSQLSyntaxSupport
 import bitlap.scalikejdbc.binders.User.*
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.*
 
-import java.sql.{ Connection, DriverManager }
+import java.sql.{ Connection, DriverManager, Statement }
 import javax.sql.DataSource
 import scala.collection.immutable.List
 
@@ -35,13 +37,36 @@ import scala.collection.immutable.List
  *    梦境迷离
  *  @version 1.0,2023/3/8
  */
-class PostgresSQLSpec extends AnyFlatSpec with Matchers with PostgresSQLSyntaxSupport with ArrayBinders:
+class PostgresSQLSpec
+    extends AnyFlatSpec
+    with Matchers
+    with PostgresSQLSyntaxSupport
+    with ArrayBinders
+    with BeforeAndAfterAll:
 
-  ConnectionPool.add("default", "jdbc:h2:mem:testdb", "", "")
-  val conn = DriverManager.getConnection(
-    "jdbc:h2:mem:testdb;MODE=PostgreSQL;INIT=RUNSCRIPT\nFROM 'classpath:test.sql'"
-  )
-  val stmt = conn.createStatement()
+  final def jdbcUriTemplate: String = "jdbc:postgresql://localhost:%s/postgres"
+
+  var embeddedPostgres: EmbeddedPostgres = _
+  var stmt: Statement                    = _
+
+  override protected def beforeAll(): Unit = {
+    embeddedPostgres = EmbeddedPostgres
+      .builder()
+      .start()
+
+    ConnectionPool.singleton(jdbcUriTemplate.format(embeddedPostgres.getPort), "postgres", "postgres")
+    stmt = embeddedPostgres.getPostgresDatabase.getConnection.createStatement()
+
+    val sqls = parseInitFile(getClass.getClassLoader.getResource("test.sql").getFile)
+    sqls.foreach(sql => stmt.execute(sql))
+  }
+
+  override protected def afterAll(): Unit =
+    if (embeddedPostgres != null)
+      embeddedPostgres.close()
+
+    if (stmt != null) stmt.close()
+
   val users = List(
     User(id = "3", varcharArray = List("444", "444"), decimalArray = Nil, longArray = Nil, intArray = List(1))
   )
@@ -59,7 +84,7 @@ class PostgresSQLSpec extends AnyFlatSpec with Matchers with PostgresSQLSyntaxSu
     ).toList
 
   "DeriveTypeBinder String List" should "ok" in {
-    val res = stmt.executeQuery("select * from `testdb`.t_user")
+    val res = stmt.executeQuery("select * from testdb.t_user")
     res.next()
     val typeBinder = DeriveTypeBinder.array[String, List](_.toList.map(_.toString), Nil)
 
@@ -68,7 +93,7 @@ class PostgresSQLSpec extends AnyFlatSpec with Matchers with PostgresSQLSyntaxSu
   }
 
   "DeriveTypeBinder BigDecimal List" should "ok" in {
-    val res = stmt.executeQuery("select decimal_array from `testdb`.t_user")
+    val res = stmt.executeQuery("select decimal_array from testdb.t_user")
     res.next()
     val typeBinder = DeriveTypeBinder.array[BigDecimal, List](_.toList.map(s => BigDecimal(s.toString)), Nil)
 
@@ -81,13 +106,11 @@ class PostgresSQLSpec extends AnyFlatSpec with Matchers with PostgresSQLSyntaxSu
       given Connection = session.connection
       User.insertUser(users.head).apply()
     }
-    val res = stmt.executeQuery("select int_array,long_array,varchar_array from `testdb`.t_user where id = '3'")
+    val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '3'")
     res.next()
     val stringTypeBinder = DeriveTypeBinder.array[String, List](_.toList.map(_.toString), Nil)
     val intTypeBinder    = DeriveTypeBinder.array[Int, List](_.toList.map(_.toString.toInt), Nil)
-    val longTypeBinder   = DeriveTypeBinder.array[Long, List](_.toList.map(_.toString.toLong), Nil)
-
-    val intList = intTypeBinder(res, 1)
+    val intList          = intTypeBinder(res, 1)
     intList shouldEqual List(1)
 
     val stringList = stringTypeBinder(res, 3)
@@ -114,10 +137,7 @@ class PostgresSQLSpec extends AnyFlatSpec with Matchers with PostgresSQLSyntaxSu
       sql.parameters.head.size shouldEqual 3
       sql.apply()
     }
-    val res = stmt.executeQuery("select varchar_array from testdb.t_user where id = '4'")
-    res.next()
-    val stringTypeBinder = DeriveTypeBinder.array[String, List](_.toList.map(_.toString), Nil)
-    val stringList       = stringTypeBinder(res, 1)
+    val stringList = getFirstArrayColumnAsList("select varchar_array from testdb.t_user where id = '4'")
     stringList shouldEqual List("444", "444")
   }
 
@@ -146,10 +166,7 @@ class PostgresSQLSpec extends AnyFlatSpec with Matchers with PostgresSQLSyntaxSu
       sql.toSQL.parameters.size shouldEqual 3
       withSQL(sql).update.apply()
     }
-    val res = stmt.executeQuery("select varchar_array from testdb.t_user where id = '5'")
-    res.next()
-    val stringTypeBinder = DeriveTypeBinder.array[String, List](_.toList.map(_.toString), Nil)
-    val stringList       = stringTypeBinder(res, 1)
+    val stringList = getFirstArrayColumnAsList("select varchar_array from testdb.t_user where id = '5'")
     stringList shouldEqual List("444", "444")
   }
 
@@ -176,6 +193,7 @@ class PostgresSQLSpec extends AnyFlatSpec with Matchers with PostgresSQLSyntaxSu
           .multipleValuesPlus(usersNameValues*)
 
       sql.toSQL.statement shouldEqual "insert into testdb.t_user (id, varchar_array, decimal_array) values (?, ?, ?), (?, ?, ?)"
+      withSQL(sql).update.apply()
 
       val usersNameValuesConflict = twoUsers.map(u =>
         List(
@@ -198,5 +216,19 @@ class PostgresSQLSpec extends AnyFlatSpec with Matchers with PostgresSQLSyntaxSu
             User.userColumn.varcharArray
           }
       sqlConflict.toSQL.statement shouldEqual "insert into testdb.t_user (id, varchar_array, decimal_array) values (?, ?, ?), (?, ?, ?) ON CONFLICT (id) DO UPDATE SET varchar_array = EXCLUDED.varchar_array"
+
+      withSQL(sqlConflict).update.apply()
     }
+
+    val stringList = getFirstArrayColumnAsList("select varchar_array from testdb.t_user where id = '6'")
+    stringList shouldEqual List("conflictListValues1", "conflictListValues2")
+
+  }
+
+  private def getFirstArrayColumnAsList(sql: String): List[String] = {
+    val res = stmt.executeQuery(sql)
+    res.next()
+    val stringTypeBinder = DeriveTypeBinder.array[String, List](_.toList.map(_.toString), Nil)
+    val stringList       = stringTypeBinder(res, 1)
+    stringList
   }
