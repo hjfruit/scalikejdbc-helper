@@ -34,10 +34,13 @@ final case class User(
   varcharArray: List[String],
   decimalArray: List[BigDecimal],
   intArray: List[Int],
-  longArray: List[Long]
+  longArray: List[Long],
+  parentId: String = ""
 )
 
 object User extends SQLSyntaxSupport[User], ArrayBinders, PostgresSQLSyntaxSupport:
+
+  given SQLSyntaxSupport[User] = User
 
   implicit def arrayStringMapping: Array[Any] => List[String] = a =>
     a.map(ae =>

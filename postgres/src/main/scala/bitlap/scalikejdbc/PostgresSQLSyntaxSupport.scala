@@ -21,7 +21,7 @@
 
 package bitlap.scalikejdbc
 
-import bitlap.scalikejdbc.binders.Utils
+import bitlap.scalikejdbc.binders.*
 import scalikejdbc.*
 
 trait PostgresSQLSyntaxSupport:
@@ -57,7 +57,7 @@ trait PostgresSQLSyntaxSupport:
         case Nil => Seq(sqls"()")
         case ss  => ss.map(s => sqls"(${sqls.csv(s.map(v => sqls"${v._2}").toList: _*)})")
       }
-      self.copy(sql = sqls"${self.sql} values ${sqls.join(vs, sqls",", false)}")
+      self.copy(sql = sqls"${self.sql} values ${sqls.csv(vs: _*)}")
     }
 
   end extension
@@ -73,5 +73,32 @@ trait PostgresSQLSyntaxSupport:
     val nameColumns  = entities.head.map(e => Utils.lowerUnderscore(e._1.value)).mkString(",")
     SQL(s"""INSERT INTO ${table.tableNameWithSchema} ($nameColumns) VALUES(${valuesSyntax.value})""")
       .batch(entities.map(_.map(f => f._2))*)
+
+  extension (self: sqls.type)
+    def withRecursive[T: SQLSyntaxSupport](
+      cols: List[SQLSyntax],
+      outerWhereConditions: SQLSyntax
+    )(
+      onCteTable: SQLSyntaxSupport[T] => SQLSyntax,
+      onInnerTable: SQLSyntaxSupport[T] => SQLSyntax,
+      returnCols: (SQLSyntaxSupport[T] => SQLSyntax)*
+    ): SQLSyntax =
+      val tableSyntax  = summon[SQLSyntaxSupport[T]]
+      val outerAliasAs = tableSyntax.as(tableSyntax.syntax("outer"))
+      val innerAliasAs = tableSyntax.as(tableSyntax.syntax("inner"))
+      val outerWhereConds =
+        if (outerWhereConditions.isEmpty) sqls.empty else sqls.where + outerWhereConditions
+      val aliasT2Cols = cols.map(c => sqls"inner.$c")
+      val cteOn       = sqls"cte_tb.${onCteTable(tableSyntax)}"
+      val innerOn     = sqls"inner.${onInnerTable(tableSyntax)}"
+      val unionSelect = sqls"SELECT ${sqls.csv(aliasT2Cols*)} FROM cte_tb INNER JOIN $innerAliasAs ON $cteOn = $innerOn"
+      val returnSelect = sqls"SELECT ${sqls.csv(returnCols.map(_.apply(tableSyntax)): _*)} FROM cte_tb"
+
+      // scalafmt: { maxColumn = 400 }
+      sqls"""WITH RECURSIVE cte_tb AS 
+            |        (
+            |          SELECT ${sqls.csv(cols: _*)} FROM $outerAliasAs $outerWhereConds
+            |          UNION ($unionSelect) 
+            |        ) $returnSelect""".stripMargin
 
 end PostgresSQLSyntaxSupport

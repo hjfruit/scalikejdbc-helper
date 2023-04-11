@@ -225,6 +225,23 @@ class PostgresSQLSpec
 
   }
 
+  "with method" should "ok" in {
+    import User.given_SQLSyntaxSupport_User
+    val withRecursiveSql = sqls.withRecursive[User](
+      List(User.userColumn.id, User.userColumn.parentId),
+      sqls"${User.userColumn.id} = 3".and(sqls"${User.userColumn.parentId} = 0")
+    )(_.column.id, _.column.parentId, _.column.id)
+
+    println(withRecursiveSql.value)
+
+    withRecursiveSql.value shouldEqual
+      """WITH RECURSIVE cte_tb AS 
+        |        (
+        |          SELECT id, parent_id FROM testdb.t_user outer  where id = 3 and (parent_id = 0)
+        |          UNION (SELECT inner.id, inner.parent_id FROM cte_tb INNER JOIN testdb.t_user inner ON cte_tb.id = inner.parent_id) 
+        |        ) SELECT id FROM cte_tb""".stripMargin
+  }
+
   private def getFirstArrayColumnAsList(sql: String): List[String] = {
     val res = stmt.executeQuery(sql)
     res.next()
