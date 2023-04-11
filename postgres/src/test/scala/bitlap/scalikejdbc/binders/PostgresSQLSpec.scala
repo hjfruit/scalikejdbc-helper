@@ -226,7 +226,7 @@ class PostgresSQLSpec
   }
 
   "with method" should "ok" in {
-    import User.given_SQLSyntaxSupport_User
+    given SQLSyntaxSupport[User] = User
     val withRecursiveSql = sqls.withRecursive[User](
       List(User.userColumn.id, User.userColumn.parentId),
       sqls"${User.userColumn.id} = 3".and(sqls"${User.userColumn.parentId} = 0")

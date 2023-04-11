@@ -40,8 +40,6 @@ final case class User(
 
 object User extends SQLSyntaxSupport[User], ArrayBinders, PostgresSQLSyntaxSupport:
 
-  given SQLSyntaxSupport[User] = User
-
   implicit def arrayStringMapping: Array[Any] => List[String] = a =>
     a.map(ae =>
       ae match
