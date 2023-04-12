@@ -24,6 +24,8 @@ package bitlap.scalikejdbc
 import bitlap.scalikejdbc.binders.*
 import scalikejdbc.*
 
+import scala.collection.immutable.Nil
+
 trait PostgresSQLSyntaxSupport:
 
   extension (self: InsertSQLBuilder)
@@ -51,30 +53,22 @@ trait PostgresSQLSyntaxSupport:
      *  [[bitlap.scalikejdbc.binders.JsonBinders]].
      */
     def multipleValuesPlus(
-      multipleValues: collection.Seq[(SQLSyntax, ParameterBinder)]*
+      multipleValues: List[(SQLSyntax, ParameterBinder)]*
     ): InsertSQLBuilder = {
-      val vs = multipleValues match {
-        case Nil => Seq(sqls"()")
-        case ss  => ss.map(s => sqls"(${sqls.csv(s.map(v => sqls"${v._2}").toList: _*)})")
-      }
+      val vs = batchValues(multipleValues*)
       self.copy(sql = sqls"${self.sql} values ${sqls.csv(vs: _*)}")
     }
 
   end extension
 
-  /** Batch insert with name values.
-   *
-   *  It also supports Array values by [[bitlap.scalikejdbc.binders.ArrayBinders]], and supports Json by
-   *  [[bitlap.scalikejdbc.binders.JsonBinders]].
-   */
-  def batchInsertNameValues(table: SQLSyntaxSupport[_], entities: List[(SQLSyntax, ParameterBinder)]*): SQLBatch =
-    assert(entities.nonEmpty)
-    val valuesSyntax = sqls.csv(entities.map(f => sqls.csv(f.map(f => sqls"$f"): _*)): _*)
-    val nameColumns  = entities.head.map(e => Utils.lowerUnderscore(e._1.value)).mkString(",")
-    SQL(s"""INSERT INTO ${table.tableNameWithSchema} ($nameColumns) VALUES(${valuesSyntax.value})""")
-      .batch(entities.map(_.map(f => f._2))*)
+  def batchValues(multipleValues: List[(SQLSyntax, ParameterBinder)]*): Seq[SQLSyntax] = multipleValues match {
+    case Nil => Seq(sqls"()")
+    case ss  => ss.map(s => sqls"(${sqls.csv(s.map(v => sqls"${v._2}"): _*)})")
+  }
 
   extension (self: sqls.type)
+    /** WITH RECURSIVE
+     */
     def withRecursive[T: SQLSyntaxSupport](
       cols: List[SQLSyntax],
       outerWhereConditions: SQLSyntax
@@ -89,7 +83,8 @@ trait PostgresSQLSyntaxSupport:
       val outerWhereConds =
         if (outerWhereConditions.isEmpty) sqls.empty else sqls.where + outerWhereConditions
       val aliasT2Cols = cols.map(c => sqls"inner.$c")
-      val cteOn       = sqls"cte_tb.${onCteTable(tableSyntax)}"
+      val cteOn =
+        sqls"cte_tb.${onCteTable(tableSyntax)}" // why cte_tb ? because they become placeholders after using interpolation.
       val innerOn     = sqls"inner.${onInnerTable(tableSyntax)}"
       val unionSelect = sqls"SELECT ${sqls.csv(aliasT2Cols*)} FROM cte_tb INNER JOIN $innerAliasAs ON $cteOn = $innerOn"
       val returnSelect = sqls"SELECT ${sqls.csv(returnCols.map(_.apply(tableSyntax)): _*)} FROM cte_tb"

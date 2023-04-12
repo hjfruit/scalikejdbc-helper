@@ -67,13 +67,14 @@ class PostgresSQLSpec
 
     if (stmt != null) stmt.close()
 
-  val users = List(
-    User(id = "3", varcharArray = List("444", "444"), decimalArray = Nil, longArray = Nil, intArray = List(1))
+  val users3_4 = List(
+    User(id = "3", varcharArray = List("333", "333"), decimalArray = Nil, longArray = Nil, intArray = List(1)),
+    User(id = "4", varcharArray = List("444", "444"), decimalArray = Nil, longArray = Nil, intArray = List(1))
   )
 
-  val twoUsers = List(
-    User(id = "6", varcharArray = List("444", "444"), decimalArray = Nil, longArray = Nil, intArray = List(1)),
-    User(id = "7", varcharArray = List("444", "444"), decimalArray = Nil, longArray = Nil, intArray = List(1))
+  val users6_7 = List(
+    User(id = "6", varcharArray = List("666", "666"), decimalArray = Nil, longArray = Nil, intArray = List(1)),
+    User(id = "7", varcharArray = List("777", "777"), decimalArray = Nil, longArray = Nil, intArray = List(1))
   )
 
   implicit def arrayStringMapping: Array[Any] => List[String] = a =>
@@ -104,7 +105,7 @@ class PostgresSQLSpec
   "DeriveTypeBinder insert BigDecimal List" should "ok" in {
     DB.localTx { implicit session =>
       given Connection = session.connection
-      User.insertUser(users.head).apply()
+      User.insertUser(users3_4.head).apply()
     }
     val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '3'")
     res.next()
@@ -114,39 +115,15 @@ class PostgresSQLSpec
     intList shouldEqual List(1)
 
     val stringList = stringTypeBinder(res, 3)
-    stringList shouldEqual List("444", "444")
-  }
-
-  "batchInsert method" should "ok" in {
-    DB.localTx { implicit session =>
-      given Connection = session.connection
-      val usersNameValues = users.map(u =>
-        List(
-          User.userColumn.id           -> "4",
-          User.userColumn.decimalArray -> u.decimalArray,
-          User.userColumn.varcharArray -> u.varcharArray
-        )
-      )
-      val sql =
-        batchInsertNameValues(
-          User,
-          usersNameValues*
-        )
-      sql.statement shouldEqual "INSERT INTO testdb.t_user (id,decimal_array,varchar_array) VALUES(?, ?, ?)"
-      sql.parameters.size shouldEqual 1
-      sql.parameters.head.size shouldEqual 3
-      sql.apply()
-    }
-    val stringList = getFirstArrayColumnAsList("select varchar_array from testdb.t_user where id = '4'")
-    stringList shouldEqual List("444", "444")
+    stringList shouldEqual List("333", "333")
   }
 
   "multipleValuesPlus method" should "ok" in {
     DB.localTx { implicit session =>
       given Connection = session.connection
-      val usersNameValues = users.map(u =>
+      val usersNameValues = users3_4.map(u =>
         List(
-          User.userColumn.id           -> "5",
+          User.userColumn.id           -> (u.id.toInt + 10).toString,
           User.userColumn.varcharArray -> u.varcharArray,
           User.userColumn.decimalArray -> u.decimalArray
         )
@@ -162,19 +139,19 @@ class PostgresSQLSpec
           )
           .multipleValuesPlus(usersNameValues*)
 
-      sql.toSQL.statement shouldEqual "insert into testdb.t_user (id, varchar_array, decimal_array) values (?, ?, ?)"
-      sql.toSQL.parameters.size shouldEqual 3
+      sql.toSQL.statement shouldEqual "insert into testdb.t_user (id, varchar_array, decimal_array) values (?, ?, ?), (?, ?, ?)"
+      sql.toSQL.parameters.size shouldEqual 6
       withSQL(sql).update.apply()
     }
-    val stringList = getFirstArrayColumnAsList("select varchar_array from testdb.t_user where id = '5'")
-    stringList shouldEqual List("444", "444")
+    val stringList = getFirstArrayColumnAsList("select varchar_array from testdb.t_user where id = '13'")
+    stringList shouldEqual List("333", "333")
   }
 
   "multipleValuesPlus and on conflict method" should "ok" in {
     DB.localTx { implicit session =>
       given Connection = session.connection
 
-      val usersNameValues = twoUsers.map(u =>
+      val usersNameValues = users6_7.map(u =>
         List(
           User.userColumn.id           -> u.id,
           User.userColumn.varcharArray -> u.varcharArray,
@@ -195,7 +172,7 @@ class PostgresSQLSpec
       sql.toSQL.statement shouldEqual "insert into testdb.t_user (id, varchar_array, decimal_array) values (?, ?, ?), (?, ?, ?)"
       withSQL(sql).update.apply()
 
-      val usersNameValuesConflict = twoUsers.map(u =>
+      val usersNameValuesConflict = users6_7.map(u =>
         List(
           User.userColumn.id           -> u.id,
           User.userColumn.varcharArray -> List("conflictListValues1", "conflictListValues2"),
@@ -225,7 +202,7 @@ class PostgresSQLSpec
 
   }
 
-  "with method" should "ok" in {
+  "with recursive method" should "ok" in {
     given SQLSyntaxSupport[User] = User
     val withRecursiveSql = sqls.withRecursive[User](
       List(User.userColumn.id, User.userColumn.parentId),
