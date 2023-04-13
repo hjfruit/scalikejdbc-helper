@@ -21,8 +21,7 @@
 
 package bitlap.scalikejdbc.binders
 
-import scalikejdbc.*
-
+import scalikejdbc.{ ParameterBinder, SQLSyntax, * }
 import bitlap.scalikejdbc.binders.ArrayBinders
 import bitlap.scalikejdbc.PostgresSQLSyntaxSupport
 import bitlap.scalikejdbc.binders.User.*
@@ -66,5 +65,16 @@ object User extends SQLSyntaxSupport[User], ArrayBinders, PostgresSQLSyntaxSuppo
           userColumn.decimalArray -> user.decimalArray,
           userColumn.intArray     -> user.intArray,
           userColumn.longArray    -> user.longArray
+        )
+    }.update
+
+  def insertUserByNameValues(
+    nameValues: List[(SQLSyntax, ParameterBinder)]
+  ): SQLUpdate =
+    withSQL {
+      insert
+        .into(User)
+        .namedValues(
+          nameValues: _*
         )
     }.update

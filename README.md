@@ -62,7 +62,7 @@ given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.
 
 - Inherit `bitlap.scalikejdbc.PostgresSQLSyntaxSupport`
 
-### ON CONFLICT
+### On conflict
 ``` scala
   def upsetMetric(
     metric: MetricPO
@@ -85,7 +85,7 @@ given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.
     }.update
 ```
 
-### Batch Insert
+### Batch insert
 
 ``` scala
   def batchCreateMetricRelation(entities: List[MetricRelationshipPO]): SQLUpdate =
@@ -105,4 +105,22 @@ given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.
         )
         .multipleValuesPlus(values*)
     withSQL(sql).update
+```
+
+### Make batch insert more simplified ?
+
+```scala
+  // support insert array, it needs `ArrayBinders`
+  given Connection = session.connection
+
+  // use autoNamedValues to generate name values. (Note: `autoNamedValues` comes from `bitlap.scalikejdbc.core`)
+  val usersNameValues = users3_4.map(u =>
+    autoNamedValues(User, u)
+  )
+  // use `autoColumns` to generate column syntax.  (Note: `autoColumns` comes from `bitlap.scalikejdbc.core`)
+  val sql: InsertSQLBuilder =
+    insert
+      .into(User)
+      .columns(autoColumns(User):_*)
+      .multipleValuesPlus(usersNameValues:_*)
 ```

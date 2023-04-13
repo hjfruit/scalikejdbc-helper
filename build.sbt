@@ -51,6 +51,10 @@ lazy val commonSettings =
     )
   )
 
+lazy val scalikejdbcDep      = "org.scalikejdbc" %% "scalikejdbc"       % "4.0.0"
+lazy val postgresqlDep       = "org.postgresql"   % "postgresql"        % "42.5.4" % Provided
+lazy val embeddedPostgresDep = "io.zonky.test"    % "embedded-postgres" % "2.0.3"  % Test
+
 lazy val `scalikejdbc-helper` = project
   .in(file("."))
   .aggregate(`postgres`)
@@ -65,9 +69,18 @@ lazy val `postgres` = project
   .settings(
     name := "scalikejdbc-helper-postgres",
     libraryDependencies ++= Seq(
-      "org.postgresql"   % "postgresql"        % "42.5.4" % Provided,
-      "org.scalikejdbc" %% "scalikejdbc"       % "4.0.0",
-      "io.zonky.test"    % "embedded-postgres" % "2.0.3"
+      postgresqlDep,
+      scalikejdbcDep,
+      embeddedPostgresDep
     )
+  )
+  .settings(commonSettings)
+  .dependsOn(`core`)
+
+lazy val `core` = project
+  .in(file("core"))
+  .settings(
+    name := "scalikejdbc-helper-core",
+    libraryDependencies ++= Seq(scalikejdbcDep)
   )
   .settings(commonSettings)
