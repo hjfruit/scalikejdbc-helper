@@ -57,7 +57,7 @@ lazy val embeddedPostgresDep = "io.zonky.test"    % "embedded-postgres" % "2.0.3
 
 lazy val `scalikejdbc-helper` = project
   .in(file("."))
-  .aggregate(`postgres`)
+  .aggregate(`postgres`, `core`)
   .settings(
     commands ++= Commands.value,
     crossScalaVersions := Nil,
