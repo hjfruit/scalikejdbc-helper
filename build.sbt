@@ -12,7 +12,7 @@ inThisBuild(
     sonatypeCredentialHost  := "s01.oss.sonatype.org",
     sonatypeRepository :=
       "https://s01.oss.sonatype.org/service/local",
-    homepage := Some(url("https://github.com/bitlap/bitlap")),
+    homepage := Some(url("https://github.com/bitlap/scalikejdbc-helper")),
     licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
       Developer(
