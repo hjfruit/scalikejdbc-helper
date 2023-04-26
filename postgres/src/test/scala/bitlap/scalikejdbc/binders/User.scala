@@ -26,8 +26,6 @@ import bitlap.scalikejdbc.binders.ArrayBinders
 import bitlap.scalikejdbc.PostgresSQLSyntaxSupport
 import bitlap.scalikejdbc.binders.User.*
 
-import java.sql.Connection
-
 final case class User(
   id: String,
   varcharArray: List[String],

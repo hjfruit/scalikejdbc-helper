@@ -97,7 +97,6 @@ class PostgresSQLSpec
 
   "DeriveTypeBinder insert BigDecimal List" should "ok" in {
     DB.localTx { implicit session =>
-      given Connection = session.connection
       User.insertUser(users3_4.head).apply()
     }
     val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '3'")

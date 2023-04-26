@@ -23,8 +23,6 @@ package bitlap.scalikejdbc.binders
 
 import scalikejdbc.*
 
-import java.sql.Connection
-
 /** @author
  *    梦境迷离
  *  @version 1.0,2023/3/8
