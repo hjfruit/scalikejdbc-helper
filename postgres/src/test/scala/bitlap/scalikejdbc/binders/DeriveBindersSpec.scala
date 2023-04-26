@@ -66,14 +66,13 @@ class DeriveBindersSpec extends AnyFlatSpec with Matchers:
   }
 
   "DeriveParameterBinderFactory postgres array" should "ok" in {
-    given Connection = ???
-    val stringArr    = showCode_(DeriveParameterBinder.array[String, List](ObjectType.String, _.toArray))
+    val stringArr = showCode_(DeriveParameterBinder.array[String, List](ObjectType.String, _.toArray))
     println(s"stringArr:\n$stringArr")
     stringArr shouldEqual
       """{
         |  val f$proxy3: Function1[List[String], Array[Any]] = ((_$1: List[String]) => _$1.toArray[Any](ClassTag.Any))
         |
-        |  (ParameterBinderFactory.apply[List[String]](((value: List[String]) => ((stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, given_Connection.createArrayOf(String.name, f$proxy3.apply(value)))))): ParameterBinderFactory[List[String]])
+        |  (ParameterBinderFactory.apply[List[String]](((value: List[String]) => ((stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, stmt.getConnection().createArrayOf(String.name, f$proxy3.apply(value)))))): ParameterBinderFactory[List[String]])
         |}""".stripMargin
 
     val intArr = showCode_(DeriveParameterBinder.array[Int, Seq](ObjectType.Int, _.toArray))
@@ -82,7 +81,7 @@ class DeriveBindersSpec extends AnyFlatSpec with Matchers:
       """{
         |  val f$proxy4: Function1[Seq[Int], Array[Any]] = ((_$2: Seq[Int]) => _$2.toArray[Any](ClassTag.Any))
         |
-        |  (ParameterBinderFactory.apply[Seq[Int]](((value: Seq[Int]) => ((stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, given_Connection.createArrayOf(Int.name, f$proxy4.apply(value)))))): ParameterBinderFactory[Seq[Int]])
+        |  (ParameterBinderFactory.apply[Seq[Int]](((value: Seq[Int]) => ((stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, stmt.getConnection().createArrayOf(Int.name, f$proxy4.apply(value)))))): ParameterBinderFactory[Seq[Int]])
         |}""".stripMargin
 
     val parameterBinderWithValue = DeriveParameterBinder.array[Int, Seq](ObjectType.Int, _.toArray).apply(Seq(123))

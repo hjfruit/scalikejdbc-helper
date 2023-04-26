@@ -77,13 +77,6 @@ class PostgresSQLSpec
     User(id = "7", varcharArray = List("777", "777"), decimalArray = Nil, longArray = Nil, intArray = List(1))
   )
 
-  implicit def arrayStringMapping: Array[Any] => List[String] = a =>
-    a.map(ae =>
-      ae match
-        case s: String => s
-        case _         => ae.toString
-    ).toList
-
   "DeriveTypeBinder String List" should "ok" in {
     val res = stmt.executeQuery("select * from testdb.t_user")
     res.next()
@@ -120,7 +113,6 @@ class PostgresSQLSpec
 
   "multipleValuesPlus method" should "ok" in {
     DB.localTx { implicit session =>
-      given Connection = session.connection
       val usersNameValues = users3_4.map(u =>
         List(
           User.userColumn.id           -> (u.id.toInt + 10).toString,
@@ -149,8 +141,6 @@ class PostgresSQLSpec
 
   "multipleValuesPlus and on conflict method" should "ok" in {
     DB.localTx { implicit session =>
-      given Connection = session.connection
-
       val usersNameValues = users6_7.map(u =>
         List(
           User.userColumn.id           -> u.id,

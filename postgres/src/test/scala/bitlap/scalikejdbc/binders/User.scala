@@ -39,13 +39,6 @@ final case class User(
 
 object User extends SQLSyntaxSupport[User], ArrayBinders, PostgresSQLSyntaxSupport:
 
-  implicit def arrayStringMapping: Array[Any] => List[String] = a =>
-    a.map(ae =>
-      ae match
-        case s: String => s
-        case _         => ae.toString
-    ).toList
-
   override def schemaName: Option[String] = Some("testdb")
   override val tableName                  = "t_user"
 
@@ -55,7 +48,7 @@ object User extends SQLSyntaxSupport[User], ArrayBinders, PostgresSQLSyntaxSuppo
 
   def insertUser(
     user: User
-  )(using Connection): SQLUpdate =
+  ): SQLUpdate =
     withSQL {
       insert
         .into(User)

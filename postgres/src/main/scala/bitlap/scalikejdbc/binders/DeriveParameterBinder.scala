@@ -34,9 +34,10 @@ import scala.quoted.*
  */
 object DeriveParameterBinder:
 
-  inline def array[A, T[X] <: Iterable[X]](inline objectType: ObjectType, f: T[A] => Array[Any])(using
-    conn: Connection
-  ): ParameterBinderFactory[T[A]] = ${ arrayImpl('{ f }, '{ conn }, '{ objectType }) }
+  inline def array[A, T[X] <: Iterable[X]](
+    inline objectType: ObjectType,
+    f: T[A] => Array[Any]
+  ): ParameterBinderFactory[T[A]] = ${ arrayImpl('{ f }, '{ objectType }) }
 
   inline def jsonb[T](inline f: T => String): ParameterBinderFactory[T] = ${ jsonImpl('{ f }, '{ ObjectType.Jsonb }) }
 
@@ -58,12 +59,11 @@ object DeriveParameterBinder:
 
   private def arrayImpl[A, T[X]](
     f: Expr[T[A] => Array[Any]],
-    conn: Expr[Connection],
     objectType: Expr[ObjectType]
   )(using quotes: Quotes, tpa: Type[A], tpt: Type[T]): Expr[ParameterBinderFactory[T[A]]] =
     import quotes.reflect.*
     '{
       ParameterBinderFactory[T[A]] { (value: T[A]) => (stmt: PreparedStatement, idx: Int) =>
-        stmt.setArray(idx, $conn.createArrayOf($objectType.name, $f(value)))
+        stmt.setArray(idx, stmt.getConnection.createArrayOf($objectType.name, $f(value)))
       }
     }

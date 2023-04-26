@@ -75,8 +75,6 @@ class AutoMacrosSpec
 
   "insert with autoNamedValues" should "ok" in {
     DB.localTx { implicit session =>
-      given Connection = session.connection
-
       User.insertUserByNameValues(autoNamedValues(User, users3_4.head)).apply()
     }
     val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '3'")
@@ -92,8 +90,6 @@ class AutoMacrosSpec
 
   "multipleValuesPlus with autoNamedValues" should "ok" in {
     val r = DB.localTx { implicit session =>
-      given Connection = session.connection
-
       val usersNameValues = users3_4.map(u =>
         autoNamedValues(
           User,

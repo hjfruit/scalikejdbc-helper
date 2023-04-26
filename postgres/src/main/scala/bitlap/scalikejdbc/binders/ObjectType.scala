@@ -34,3 +34,4 @@ enum ObjectType(val name: String):
   case Short      extends ObjectType("smallint")
   case Json       extends ObjectType("json")
   case Jsonb      extends ObjectType("jsonb")
+  case Int8       extends ObjectType("int8")

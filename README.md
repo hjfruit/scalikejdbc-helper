@@ -35,9 +35,12 @@
 | bigint        | Long       | List,Set,Seq,Vector   |
 
 ## TypeBinder array
-| postgres type | scala type | supported collections | required implicit mapping function |
-|---------------|------------|-----------------------|------------------------------------|
-| all           | all        | List,Set,Seq,Vector   | `Array[Any] => T[X]`               |
+| postgres type | scala type | supported collections |
+|---------------|------------|-----------------------|
+| varchar       | String     | List,Set,Seq,Vector   |
+| integer       | Int        | List,Set,Seq,Vector   |
+| decimal       | BigDecimal | List,Set,Seq,Vector   |
+| bigint        | Long       | List,Set,Seq,Vector   |
 
 ## ParameterBinderFactory json
 | postgres type | scala type | required implicit mapping function |
@@ -110,9 +113,6 @@ given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.
 ### Make batch insert more simplified ?
 
 ```scala
-  // support insert array, it needs `ArrayBinders`
-  given Connection = session.connection
-
   // use autoNamedValues to generate name values. (Note: `autoNamedValues` comes from `bitlap.scalikejdbc.core`)
   val usersNameValues = users3_4.map(u =>
     autoNamedValues(User, u)
