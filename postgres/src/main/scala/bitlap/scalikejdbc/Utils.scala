@@ -19,19 +19,32 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package bitlap.scalikejdbc.binders
+package bitlap.scalikejdbc
 
-import bitlap.scalikejdbc.internal.*
-import scalikejdbc.*
+import scala.quoted.*
 
 /** @author
  *    梦境迷离
- *  @version 1.0,2023/3/9
+ *  @version 1.0,2023/3/8
  */
-trait JsonBinders:
+object Utils:
 
-  given type2Json[T](using map: T => String): ParameterBinderFactory[T] =
-    DeriveParameterBinder.jsonb[T](map)
+  def lowerUnderscore(camelCaseStr: String): String = {
+    if (camelCaseStr == null) return null
+    val charArray = camelCaseStr.toCharArray
+    val buffer    = new StringBuffer
+    var i         = 0
+    val l         = charArray.length
+    while (i < l) {
+      if (charArray(i) >= 65 && charArray(i) <= 90) buffer.append("_").append((charArray(i).toInt + 32).toChar)
+      else buffer.append(charArray(i))
+      i += 1
+    }
+    buffer.toString
+  }
 
-  given json2Type[T](using map: String => T): TypeBinder[T] =
-    DeriveTypeBinder.json[T](map)
+  inline def showCode_[A](inline a: A): String = ${ showCode[A]('{ a }) }
+
+  def showCode[A: Type](a: Expr[A])(using quotes: Quotes): Expr[String] =
+    import quotes.reflect.*
+    Expr(Printer.TreeShortCode.show(a.asTerm))

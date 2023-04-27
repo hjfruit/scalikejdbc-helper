@@ -21,7 +21,8 @@
 
 package bitlap.scalikejdbc.core
 
-import bitlap.scalikejdbc.core.EntityUtil.ConstructorParam
+import bitlap.scalikejdbc.core.internal.EntityUtil
+import bitlap.scalikejdbc.core.internal.EntityUtil.ConstructorParam
 
 import scala.quoted.*
 import scalikejdbc.*

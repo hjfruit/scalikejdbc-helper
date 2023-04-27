@@ -21,17 +21,45 @@
 
 package bitlap.scalikejdbc.binders
 
-import bitlap.scalikejdbc.internal.*
+import bitlap.scalikejdbc.core.*
 import scalikejdbc.*
+import bitlap.scalikejdbc.core.internal.DeriveEnumTypeBinder
 
-/** @author
- *    梦境迷离
- *  @version 1.0,2023/3/9
- */
-trait JsonBinders:
+final case class EnumEntity(
+  id: TestEnum
+)
 
-  given type2Json[T](using map: T => String): ParameterBinderFactory[T] =
-    DeriveParameterBinder.jsonb[T](map)
+enum TestEnum:
+  case Enum1 extends TestEnum
+  case Enum2 extends TestEnum
 
-  given json2Type[T](using map: String => T): TypeBinder[T] =
-    DeriveTypeBinder.json[T](map)
+object TestEnum:
+  implicit def enumFromInt: Int => TestEnum = TestEnum.fromOrdinal
+end TestEnum
+
+object EnumTable extends SQLSyntaxSupport[EnumEntity], AllBinders:
+
+  override def schemaName: Option[String] = Some("testdb")
+  override val tableName                  = "t_enum"
+
+  def apply(up: ResultName[EnumEntity])(rs: WrappedResultSet): EnumEntity = EnumEntity(rs.get(1))
+
+  val enumColumn = EnumTable.column
+
+  val e = EnumTable.syntax("e")
+
+  def insertEnum(
+    e: EnumEntity
+  ): SQLUpdate =
+    withSQL {
+      insert
+        .into(EnumTable)
+        .namedValues(
+          enumColumn.id -> e.id
+        )
+    }.update
+
+  def queryEnum()(using a: AutoSession = AutoSession): Option[EnumEntity] =
+    withSQL {
+      select.from(EnumTable as e)
+    }.map(EnumTable(e.resultName)).single.apply()

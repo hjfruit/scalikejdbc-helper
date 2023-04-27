@@ -19,19 +19,19 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package bitlap.scalikejdbc.binders
-
-import bitlap.scalikejdbc.internal.*
-import scalikejdbc.*
+package bitlap.scalikejdbc
 
 /** @author
  *    梦境迷离
- *  @version 1.0,2023/3/9
+ *  @version 1.0,2023/3/8
  */
-trait JsonBinders:
-
-  given type2Json[T](using map: T => String): ParameterBinderFactory[T] =
-    DeriveParameterBinder.jsonb[T](map)
-
-  given json2Type[T](using map: String => T): TypeBinder[T] =
-    DeriveTypeBinder.json[T](map)
+enum ObjectType(val name: String):
+  self =>
+  case String     extends ObjectType("varchar")
+  case Int        extends ObjectType("integer")
+  case Long       extends ObjectType("bigint")
+  case BigDecimal extends ObjectType("decimal")
+  case Short      extends ObjectType("smallint")
+  case Json       extends ObjectType("json")
+  case Jsonb      extends ObjectType("jsonb")
+  case Int8       extends ObjectType("int8")

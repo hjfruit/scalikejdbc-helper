@@ -19,19 +19,30 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package bitlap.scalikejdbc.binders
+package bitlap.scalikejdbc.core.internal
 
-import bitlap.scalikejdbc.internal.*
-import scalikejdbc.*
+import scalikejdbc.TypeBinder
+
+import java.sql.ResultSet
+import scala.quoted.*
 
 /** @author
  *    梦境迷离
- *  @version 1.0,2023/3/9
+ *  @version 1.0,2023/4/27
  */
-trait JsonBinders:
+object DeriveEnumTypeBinder:
 
-  given type2Json[T](using map: T => String): ParameterBinderFactory[T] =
-    DeriveParameterBinder.jsonb[T](map)
+  inline def int2Enum[T <: reflect.Enum](inline fromInt: Int => T): TypeBinder[T] = ${ enumImpl('fromInt) }
 
-  given json2Type[T](using map: String => T): TypeBinder[T] =
-    DeriveTypeBinder.json[T](map)
+  private def enumImpl[T](func: Expr[Int => T])(using quotes: Quotes, tpe: Type[T]): Expr[TypeBinder[T]] =
+    import quotes.reflect.*
+    '{
+      new TypeBinder[T]:
+        override def apply(rs: ResultSet, columnLabel: String): T =
+          val idx = rs.getInt(columnLabel)
+          $func(idx)
+
+        override def apply(rs: ResultSet, columnIndex: Int): T =
+          val idx = rs.getInt(columnIndex)
+          $func(idx)
+    }

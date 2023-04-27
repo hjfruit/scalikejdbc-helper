@@ -16,15 +16,12 @@
 "org.bitlap" %% "scalikejdbc-helper-postgres" % <version>
 ```
 
-- Inherit `ArrayBinders`
+- Inherit `bitlap.scalikejdbc.binders.AllBinders`
   - Support `TypeBinder`
   - Support `ParameterBinderFactory`
-- Inherit `JsonBinders`
-  - Support `TypeBinder`
-  - Support `ParameterBinderFactory`
-- Inherit `bitlap.scalikejdbc.PostgresSQLSyntaxSupport`
   - Support Batch Insert
   - Support `ON CONFLICT`
+  - Support Scala3 enum
 
 ## ParameterBinderFactory array
 | postgres type | scala type | supported collections |
@@ -61,66 +58,39 @@ given ParameterBinderFactory[Map[String, String]] = DeriveParameterBinder.json[M
 given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.toList.map(s => BigDecimal(s.toString)), Nil)
 ```
 
-## PostgresSQLSyntaxSupport
+## Scala3 enum
 
-- Inherit `bitlap.scalikejdbc.PostgresSQLSyntaxSupport`
+```scala
+enum TestEnum:
+  case Enum1 extends TestEnum
+  case Enum2 extends TestEnum
 
-### On conflict
-``` scala
-  def upsetMetric(
-    metric: MetricPO
+object TestEnum:
+  implicit def enumFromInt: Int => TestEnum = TestEnum.fromOrdinal
+end TestEnum
+
+final case class EnumEntity(id: TestEnum)
+```
+
+**Enumeration uses less space and has good readability**
+```scala
+  def insertEnum(
+    e: EnumEntity
   ): SQLUpdate =
     withSQL {
       insert
-        .into(MetricPO)
+        .into(EnumTable)
         .namedValues(
-          column.id            -> metric.id,
-          column.displayName   -> metric.displayName,
-          column.createBy      -> metric.createBy,
-          column.createTime    -> metric.createTime,
-          column.updateBy      -> metric.updateBy,
-          column.updateTime    -> metric.updateTime
-        ).onConflictUpdate(column.id)(
-          column.displayName,
-          column.updateBy,
-          column.updateTime
-      )
-    }.update
-```
-
-### Batch insert
-
-``` scala
-  def batchCreateMetricRelation(entities: List[MetricRelationshipPO]): SQLUpdate =
-    val values = entities.map(entity =>
-      List(
-        relationColumn.metricId -> entity.metricId,
-        relationColumn.parentId -> entity.parentId
-      )
-    )
-
-    val sql: InsertSQLBuilder =
-      insert
-        .into(MetricRelationshipPO)
-        .columns(
-          relationColumn.metricId,
-          relationColumn.parentId
+          enumColumn.id -> e.id
         )
-        .multipleValuesPlus(values*)
-    withSQL(sql).update
+    }.update
+
+  def queryEnum()(using a: AutoSession = AutoSession): Option[EnumEntity] =
+    withSQL {
+      select.from(EnumTable as e)
+    }.map(EnumTable(e.resultName)).single.apply()
 ```
 
-### Make batch insert more simplified ?
+## PostgresSQLSyntaxSupport
 
-```scala
-  // use autoNamedValues to generate name values. (Note: `autoNamedValues` comes from `bitlap.scalikejdbc.core`)
-  val usersNameValues = users3_4.map(u =>
-    autoNamedValues(User, u)
-  )
-  // use `autoColumns` to generate column syntax.  (Note: `autoColumns` comes from `bitlap.scalikejdbc.core`)
-  val sql: InsertSQLBuilder =
-    insert
-      .into(User)
-      .columns(autoColumns(User):_*)
-      .multipleValuesPlus(usersNameValues:_*)
-```
+[DSL Extension](PG.md)

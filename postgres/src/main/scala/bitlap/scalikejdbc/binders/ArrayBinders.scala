@@ -21,6 +21,8 @@
 
 package bitlap.scalikejdbc.binders
 
+import bitlap.scalikejdbc.ObjectType
+import bitlap.scalikejdbc.internal.*
 import scalikejdbc.*
 
 /** @author

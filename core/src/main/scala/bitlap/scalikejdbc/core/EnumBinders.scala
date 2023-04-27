@@ -19,19 +19,26 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package bitlap.scalikejdbc.binders
+package bitlap.scalikejdbc.core
+
+import bitlap.scalikejdbc.core.internal.DeriveEnumTypeBinder
+import scalikejdbc.*
+
+import java.sql.*
+import scala.deriving.Mirror
 
 /** @author
  *    梦境迷离
- *  @version 1.0,2023/3/8
+ *  @version 1.0,2023/4/27
  */
-enum ObjectType(val name: String):
-  self =>
-  case String     extends ObjectType("varchar")
-  case Int        extends ObjectType("integer")
-  case Long       extends ObjectType("bigint")
-  case BigDecimal extends ObjectType("decimal")
-  case Short      extends ObjectType("smallint")
-  case Json       extends ObjectType("json")
-  case Jsonb      extends ObjectType("jsonb")
-  case Int8       extends ObjectType("int8")
+trait EnumBinders:
+
+  given enumParameterBinderFactory[T <: reflect.Enum]: ParameterBinderFactory[T] = ParameterBinderFactory[T] {
+    (value: T) => (stmt: PreparedStatement, idx: Int) =>
+      stmt.setInt(idx, value.ordinal)
+  }
+
+  given enumTypeBinder[T <: reflect.Enum](using fromInt: Int => T): TypeBinder[T] =
+    DeriveEnumTypeBinder.int2Enum[T](fromInt)
+
+end EnumBinders

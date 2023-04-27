@@ -23,6 +23,7 @@ package bitlap.scalikejdbc.binders
 
 import bitlap.scalikejdbc.PostgresSQLSyntaxSupport
 import bitlap.scalikejdbc.binders.User.*
+import bitlap.scalikejdbc.internal.DeriveTypeBinder
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec

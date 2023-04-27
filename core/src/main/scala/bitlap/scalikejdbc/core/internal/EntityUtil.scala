@@ -19,9 +19,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package bitlap.scalikejdbc.core
+package bitlap.scalikejdbc.core.internal
 
-import scala.quoted._
+import scala.quoted.*
 
 /** copy from
  *  https://github.com/scalikejdbc/scalikejdbc/blob/4.0.0/scalikejdbc-syntax-support-macro/src/main/scala-3/scalikejdbc/EntityUtil.scala
@@ -37,7 +37,7 @@ object EntityUtil {
   def constructorParams[T: Type](
     excludes: Expr[Seq[String]]
   )(using quotes: Quotes): List[ConstructorParam[quotes.type]] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val sym                = TypeTree.of[T].symbol
     val primaryConstructor = sym.primaryConstructor
     if (primaryConstructor.isNoSymbol) {

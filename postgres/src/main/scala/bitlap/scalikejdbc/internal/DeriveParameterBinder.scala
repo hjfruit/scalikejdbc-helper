@@ -19,13 +19,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package bitlap.scalikejdbc.binders
+package bitlap.scalikejdbc.internal
 
+import bitlap.scalikejdbc.ObjectType
 import org.postgresql.util.PGobject
-import scala.quoted.*
 import scalikejdbc.ParameterBinderFactory
-import bitlap.scalikejdbc.binders.ObjectType
-import java.sql.{ Array as _, _ }
+
+import java.sql.{ Array as _, * }
 import scala.quoted.*
 
 /** @author
