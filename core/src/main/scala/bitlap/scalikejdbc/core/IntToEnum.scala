@@ -30,7 +30,7 @@ import scala.compiletime.*
  *    梦境迷离
  *  @version 1.0,2023/4/27
  */
-@implicitNotFound("Cannot find IntToEnum[${T}] instances for ${T}")
+@implicitNotFound("Cannot find IntToEnum[${T}] instance for ${T}")
 trait IntToEnum[T]:
   def from(ordinal: Int): T
 end IntToEnum
