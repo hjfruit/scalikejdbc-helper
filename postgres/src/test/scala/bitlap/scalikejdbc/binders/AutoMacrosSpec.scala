@@ -22,8 +22,11 @@
 package bitlap.scalikejdbc.binders
 
 import bitlap.scalikejdbc.PostgresSQLSyntaxSupport
-import bitlap.scalikejdbc.binders.User.*
+import bitlap.scalikejdbc.binders.model.*
+import bitlap.scalikejdbc.binders.model.User
+import bitlap.scalikejdbc.binders.model.User.*
 import bitlap.scalikejdbc.core.*
+import bitlap.scalikejdbc.Utils
 import bitlap.scalikejdbc.core.internal.DeriveEnumTypeBinder
 import bitlap.scalikejdbc.internal.DeriveTypeBinder
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
@@ -116,9 +119,9 @@ class AutoMacrosSpec
   }
 
   "insert with enum" should "ok" in {
-    DB.localTx { implicit session =>
-      EnumTable.insertEnum(EnumEntity(TestEnum.Enum2)).apply()
-    }
+    EnumTable.insertEnum(EnumEntity(TestEnum.Enum2))
+    IntToEnum.derived[TestEnum].from(0) shouldEqual TestEnum.Enum1
+
     val res = EnumTable.queryEnum()
     res.map(_.id) shouldEqual Some(TestEnum.Enum2)
   }

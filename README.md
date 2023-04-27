@@ -21,7 +21,7 @@
   - Support `ParameterBinderFactory`
   - Support Batch Insert
   - Support `ON CONFLICT`
-  - Support Scala3 enum
+  - Support Scala3 enum (without params)
 
 ## ParameterBinderFactory array
 | postgres type | scala type | supported collections |
@@ -61,13 +61,10 @@ given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.
 ## Scala3 enum
 
 ```scala
+// We will derive a typeclass `IntToEnum` to generate `fromOrdinal` in static state
 enum TestEnum:
   case Enum1 extends TestEnum
   case Enum2 extends TestEnum
-
-object TestEnum:
-  implicit def enumFromInt: Int => TestEnum = TestEnum.fromOrdinal
-end TestEnum
 
 final case class EnumEntity(id: TestEnum)
 ```

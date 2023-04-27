@@ -19,47 +19,35 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package bitlap.scalikejdbc.binders
+package bitlap.scalikejdbc.core
 
-import bitlap.scalikejdbc.core.*
-import scalikejdbc.*
-import bitlap.scalikejdbc.core.internal.DeriveEnumTypeBinder
+import scala.annotation.implicitNotFound
+import scala.deriving.*
+import scala.compiletime.*
 
-final case class EnumEntity(
-  id: TestEnum
-)
+/** Generate `fromOrdinal` for simple enum. Simple enum cannot have params.
+ *  @author
+ *    梦境迷离
+ *  @version 1.0,2023/4/27
+ */
+@implicitNotFound("Cannot find IntToEnum[${T}] instances for ${T}")
+trait IntToEnum[T]:
+  def from(ordinal: Int): T
+end IntToEnum
 
-enum TestEnum:
-  case Enum1 extends TestEnum
-  case Enum2 extends TestEnum
+object IntToEnum:
 
-object TestEnum:
-  implicit def enumFromInt: Int => TestEnum = TestEnum.fromOrdinal
-end TestEnum
+  inline given derived[T <: reflect.Enum](using m: Mirror.SumOf[T]): IntToEnum[T] =
+    val elemInstances =
+      summonAll[Tuple.Map[m.MirroredElemTypes, ValueOf]].productIterator.asInstanceOf[Iterator[ValueOf[T]]].map(_.value)
+    val productArity = summonAll[Tuple.Map[m.MirroredElemLabels, ValueOf]].productArity
+    val mapping      = ((0 until productArity).toSeq zip elemInstances.toSeq).toMap
+    (ordinal: Int) => {
+      if (ordinal < 0 || ordinal >= productArity) {
+        throw new ArrayIndexOutOfBoundsException(s"Valid enumeration ordinal is 0 to $productArity")
+      }
+      mapping(ordinal)
+    }
+  end derived
 
-object EnumTable extends SQLSyntaxSupport[EnumEntity], AllBinders:
-
-  override def schemaName: Option[String] = Some("testdb")
-  override val tableName                  = "t_enum"
-
-  def apply(up: ResultName[EnumEntity])(rs: WrappedResultSet): EnumEntity = EnumEntity(rs.get(1))
-
-  val enumColumn = EnumTable.column
-
-  val e = EnumTable.syntax("e")
-
-  def insertEnum(
-    e: EnumEntity
-  ): SQLUpdate =
-    withSQL {
-      insert
-        .into(EnumTable)
-        .namedValues(
-          enumColumn.id -> e.id
-        )
-    }.update
-
-  def queryEnum()(using a: AutoSession = AutoSession): Option[EnumEntity] =
-    withSQL {
-      select.from(EnumTable as e)
-    }.map(EnumTable(e.resultName)).single.apply()
+end IntToEnum

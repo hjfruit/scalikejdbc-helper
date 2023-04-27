@@ -19,26 +19,46 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package bitlap.scalikejdbc.core
+package bitlap.scalikejdbc.binders.model
 
-import bitlap.scalikejdbc.core.internal.DeriveEnumTypeBinder
+import bitlap.scalikejdbc.core.*
 import scalikejdbc.*
+import bitlap.scalikejdbc.core.internal.DeriveEnumTypeBinder
+import bitlap.scalikejdbc.binders.AllBinders
 
-import java.sql.*
-import scala.deriving.Mirror
+final case class EnumEntity(
+  id: TestEnum
+)
 
-/** @author
- *    梦境迷离
- *  @version 1.0,2023/4/27
- */
-trait EnumBinders:
+enum TestEnum:
+  case Enum1 extends TestEnum
+  case Enum2 extends TestEnum
+end TestEnum
 
-  given enumParameterBinderFactory[T <: reflect.Enum]: ParameterBinderFactory[T] = ParameterBinderFactory[T] {
-    (value: T) => (stmt: PreparedStatement, idx: Int) =>
-      stmt.setInt(idx, value.ordinal) // ordinal comes from scala.reflect.Enum? So we don't need macro.
-  }
+object EnumTable extends SQLSyntaxSupport[EnumEntity], AllBinders:
 
-  given enumTypeBinder[T <: reflect.Enum](using int2Enum: IntToEnum[T]): TypeBinder[T] =
-    DeriveEnumTypeBinder.int2Enum[T](int2Enum)
+  override def schemaName: Option[String] = Some("testdb")
+  override val tableName                  = "t_enum"
 
-end EnumBinders
+  def apply(up: ResultName[EnumEntity])(rs: WrappedResultSet): EnumEntity =
+    EnumEntity(rs.get(1))
+
+  val enumColumn = EnumTable.column
+
+  val e = EnumTable.syntax("e")
+
+  def insertEnum(
+    e: EnumEntity
+  )(using a: AutoSession = AutoSession): Int =
+    withSQL {
+      insert
+        .into(EnumTable)
+        .namedValues(
+          enumColumn.id -> e.id
+        )
+    }.update.apply()
+
+  def queryEnum()(using a: AutoSession = AutoSession): Option[EnumEntity] =
+    withSQL {
+      select.from(EnumTable as e)
+    }.map(EnumTable(e.resultName)).single.apply()

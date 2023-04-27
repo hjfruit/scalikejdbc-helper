@@ -19,12 +19,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package bitlap.scalikejdbc.binders
+package bitlap.scalikejdbc.binders.model
 
-import scalikejdbc.{ ParameterBinder, SQLSyntax, * }
-import bitlap.scalikejdbc.binders.ArrayBinders
 import bitlap.scalikejdbc.PostgresSQLSyntaxSupport
-import bitlap.scalikejdbc.binders.User.*
+import bitlap.scalikejdbc.binders.model.User.*
+import bitlap.scalikejdbc.binders.*
+import scalikejdbc.*
 
 final case class User(
   id: String,

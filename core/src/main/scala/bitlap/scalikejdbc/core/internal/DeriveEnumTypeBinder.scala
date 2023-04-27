@@ -21,6 +21,7 @@
 
 package bitlap.scalikejdbc.core.internal
 
+import bitlap.scalikejdbc.core.IntToEnum
 import scalikejdbc.TypeBinder
 
 import java.sql.ResultSet
@@ -32,17 +33,17 @@ import scala.quoted.*
  */
 object DeriveEnumTypeBinder:
 
-  inline def int2Enum[T <: reflect.Enum](inline fromInt: Int => T): TypeBinder[T] = ${ enumImpl('fromInt) }
+  inline def int2Enum[T <: reflect.Enum](inline int2Enum: IntToEnum[T]): TypeBinder[T] = ${ enumImpl('int2Enum) }
 
-  private def enumImpl[T](func: Expr[Int => T])(using quotes: Quotes, tpe: Type[T]): Expr[TypeBinder[T]] =
+  private def enumImpl[T: Type](int2Enum: Expr[IntToEnum[T]])(using quotes: Quotes): Expr[TypeBinder[T]] =
     import quotes.reflect.*
     '{
       new TypeBinder[T]:
         override def apply(rs: ResultSet, columnLabel: String): T =
           val idx = rs.getInt(columnLabel)
-          $func(idx)
+          $int2Enum.from(idx)
 
         override def apply(rs: ResultSet, columnIndex: Int): T =
           val idx = rs.getInt(columnIndex)
-          $func(idx)
+          $int2Enum.from(idx)
     }
