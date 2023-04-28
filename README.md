@@ -17,20 +17,20 @@
 ```
 
 - Inherit `bitlap.scalikejdbc.binders.AllBinders`
-  - Support `TypeBinder`
-  - Support `ParameterBinderFactory`
+  - Support `TypeBinder` for array, scala3 enumeration ((without params))
+  - Support `ParameterBinderFactory` for scala collections and scala3 enumeration 
+- Inherit `bitlap.scalikejdbc.PostgresSQLSyntaxSupport`
   - Support Batch Insert
   - Support `ON CONFLICT`
-  - Support Scala3 enum (without params)
 
 ## Array
 ### ParameterBinderFactory
-| postgres type | scala type | supported collections |
-|---------------|------------|-----------------------|
-| varchar       | String     | List,Set,Seq,Vector   |
-| integer       | Int        | List,Set,Seq,Vector   |
-| decimal       | BigDecimal | List,Set,Seq,Vector   |
-| bigint        | Long       | List,Set,Seq,Vector   |
+| scala collections   | scala type | postgres type |
+|---------------------|------------|---------------|
+| List,Set,Seq,Vector | String     | varchar       |
+| List,Set,Seq,Vector | Int        | integer       |
+| List,Set,Seq,Vector | BigDecimal | decimal       |
+| List,Set,Seq,Vector | Long       | bigint        |
 
 ### TypeBinder
 | postgres type | scala type | supported collections |
@@ -44,19 +44,19 @@
 ### ParameterBinderFactory
 | postgres type | scala type | required implicit mapping function |
 |---------------|------------|------------------------------------|
-| json          | `T`        | `String => T`                      |
+| json/jsonb    | `T`        | `String => T`                      |
 
 ### TypeBinder
-| postgres type | scala type | required implicit mapping function |
-|---------------|------------|------------------------------------|
-| json          | `T`        | `T => String`                      |
+| scala type | required implicit mapping function | postgres type |
+|------------|------------------------------------|---------------|
+| `T`        | `T => String`                      | jsonb/json    |
 
 ## Enum
 
 ### ParameterBinderFactory
-| postgres type | scala type | 
-|---------------|------------|
-| smallint      | enum       |
+| scala type | postgres type | 
+|------------|---------------|
+| enum       | smallint      |
 
 ### TypeBinder
 | postgres type | scala type | 
