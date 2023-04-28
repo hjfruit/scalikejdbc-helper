@@ -35,3 +35,4 @@ enum ObjectType(val name: String):
   case Json       extends ObjectType("json")
   case Jsonb      extends ObjectType("jsonb")
   case Int8       extends ObjectType("int8")
+  case Int4       extends ObjectType("int4")
