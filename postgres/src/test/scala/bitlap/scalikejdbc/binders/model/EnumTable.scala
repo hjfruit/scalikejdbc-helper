@@ -40,8 +40,7 @@ object EnumTable extends SQLSyntaxSupport[EnumEntity], AllBinders:
   override def schemaName: Option[String] = Some("testdb")
   override val tableName                  = "t_enum"
 
-  def apply(up: ResultName[EnumEntity])(rs: WrappedResultSet): EnumEntity =
-    EnumEntity(rs.get(1))
+  def apply(up: ResultName[EnumEntity])(rs: WrappedResultSet): EnumEntity = autoConstruct(rs, up)
 
   val enumColumn = EnumTable.column
 

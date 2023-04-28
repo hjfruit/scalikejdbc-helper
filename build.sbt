@@ -51,11 +51,10 @@ lazy val commonSettings =
     )
   )
 
-lazy val scalikejdbcDep      = "org.scalikejdbc"              %% "scalikejdbc"       % "4.0.0"
-lazy val postgresqlDep       = "org.postgresql"                % "postgresql"        % "42.5.4" % Provided
-lazy val embeddedPostgresDep = "io.zonky.test"                 % "embedded-postgres" % "2.0.3"  % Test
-lazy val magnolia1           = "com.softwaremill.magnolia1_3" %% "magnolia"          % "1.1.1"
-
+lazy val scalikejdbcDep      = "org.scalikejdbc" %% "scalikejdbc"                      % "4.0.0"
+lazy val postgresqlDep       = "org.postgresql"   % "postgresql"                       % "42.5.4" % Provided
+lazy val embeddedPostgresDep = "io.zonky.test"    % "embedded-postgres"                % "2.0.3"  % Test
+lazy val scalikejdbcMacroDep = "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % "4.0.0"  % Test
 lazy val `scalikejdbc-helper` = project
   .in(file("."))
   .aggregate(`postgres`, `core`)
@@ -72,7 +71,8 @@ lazy val `postgres` = project
     libraryDependencies ++= Seq(
       postgresqlDep,
       scalikejdbcDep,
-      embeddedPostgresDep
+      embeddedPostgresDep,
+      scalikejdbcMacroDep
     )
   )
   .settings(commonSettings)
@@ -82,6 +82,6 @@ lazy val `core` = project
   .in(file("core"))
   .settings(
     name := "scalikejdbc-helper-core",
-    libraryDependencies ++= Seq(scalikejdbcDep, magnolia1)
+    libraryDependencies ++= Seq(scalikejdbcDep)
   )
   .settings(commonSettings)

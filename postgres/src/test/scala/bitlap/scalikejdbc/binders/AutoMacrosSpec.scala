@@ -33,7 +33,7 @@ import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import scalikejdbc.*
+import scalikejdbc.{ autoColumns as _, autoNamedValues as _, * }
 
 import java.sql.*
 import javax.sql.DataSource
