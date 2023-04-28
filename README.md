@@ -1,10 +1,10 @@
 # scalikejdbc-helper
 
-![CI][Badge-CI]  [![Nexus][Badge-Releases]][Link-Releases] 
+![CI][Badge-CI]  [![ScalaIndex][ScalaIndex-Releases]][ScalaIndex-Link] 
 
 [Badge-CI]: https://github.com/bitlap/scalikejdbc-helper/actions/workflows/ScalaCI.yml/badge.svg
-[Badge-Releases]: https://img.shields.io/nexus/r/org.bitlap/scalikejdbc-helper-postgres_3?server=https%3A%2F%2Fs01.oss.sonatype.org
-[Link-Releases]: https://s01.oss.sonatype.org/content/repositories/releases/org/bitlap/scalikejdbc-helper-postgres_3/
+[ScalaIndex-Releases]: https://index.scala-lang.org/bitlap/scalikejdbc-helper/scalikejdbc-helper-postgres/latest-by-scala-version.svg?platform=jvm
+[ScalaIndex-Link]: https://index.scala-lang.org/bitlap/scalikejdbc-helper/scalikejdbc-helper-postgres
 
 ----
 
@@ -13,7 +13,7 @@
 - Dependency
 
 ```scala
-"org.bitlap" %% "scalikejdbc-helper-postgres" % <version>
+"org.bitlap" %% "scalikejdbc-helper-postgres" % "<version>"
 ```
 
 - Inherit `bitlap.scalikejdbc.binders.AllBinders`
