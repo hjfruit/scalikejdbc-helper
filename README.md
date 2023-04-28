@@ -23,7 +23,8 @@
   - Support `ON CONFLICT`
   - Support Scala3 enum (without params)
 
-## ParameterBinderFactory array
+## Array
+### ParameterBinderFactory
 | postgres type | scala type | supported collections |
 |---------------|------------|-----------------------|
 | varchar       | String     | List,Set,Seq,Vector   |
@@ -31,7 +32,7 @@
 | decimal       | BigDecimal | List,Set,Seq,Vector   |
 | bigint        | Long       | List,Set,Seq,Vector   |
 
-## TypeBinder array
+### TypeBinder
 | postgres type | scala type | supported collections |
 |---------------|------------|-----------------------|
 | varchar       | String     | List,Set,Seq,Vector   |
@@ -39,15 +40,28 @@
 | decimal       | BigDecimal | List,Set,Seq,Vector   |
 | bigint        | Long       | List,Set,Seq,Vector   |
 
-## ParameterBinderFactory json
+## Json
+### ParameterBinderFactory
 | postgres type | scala type | required implicit mapping function |
 |---------------|------------|------------------------------------|
 | json          | `T`        | `String => T`                      |
 
-## TypeBinder json
+### TypeBinder
 | postgres type | scala type | required implicit mapping function |
 |---------------|------------|------------------------------------|
 | json          | `T`        | `T => String`                      |
+
+## Enum
+
+### ParameterBinderFactory
+| postgres type | scala type | 
+|---------------|------------|
+| smallint      | enum       |
+
+### TypeBinder
+| postgres type | scala type | 
+|---------------|------------|
+| smallint      | enum       |
 
 ## Manual definition
 ```scala
@@ -58,7 +72,7 @@ given ParameterBinderFactory[Map[String, String]] = DeriveParameterBinder.json[M
 given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.toList.map(s => BigDecimal(s.toString)), Nil)
 ```
 
-## Scala3 enum
+## How to use enumeration to optimize storage space?
 
 ```scala
 // We will derive a typeclass `IntToEnum` to generate `fromOrdinal` in static state
@@ -69,7 +83,15 @@ enum TestEnum:
 final case class EnumEntity(id: TestEnum)
 ```
 
-**Enumeration uses less space and has good readability**
+**This uses the smallest storage space**
+```sql
+create table testdb.t_enum
+(
+    id smallint
+);
+```
+
+**This has higher readability**
 ```scala
   def insertEnum(
     e: EnumEntity
