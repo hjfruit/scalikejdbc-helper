@@ -84,6 +84,8 @@ enum TestEnum:
 final case class EnumEntity(id: TestEnum)
 ```
 
+> The ordinal of the enumeration starts from 0, and changes in order will affect the ordinal
+ 
 **This uses the smallest storage space**
 ```sql
 create table testdb.t_enum
