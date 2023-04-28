@@ -17,7 +17,7 @@
 ```
 
 - Inherit `bitlap.scalikejdbc.binders.AllBinders`
-  - Support `TypeBinder` for array, scala3 enumeration ((without params))
+  - Support `TypeBinder` for array, scala3 enumeration (without params)
   - Support `ParameterBinderFactory` for scala collections and scala3 enumeration 
 - Inherit `bitlap.scalikejdbc.PostgresSQLSyntaxSupport`
   - Support Batch Insert
