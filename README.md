@@ -76,6 +76,7 @@ given TypeBinder[List[BigDecimal]] = DeriveTypeBinder.array[BigDecimal, List](_.
 
 ```scala
 // We will derive a typeclass `IntToEnum` to generate `fromOrdinal` in static state
+// If it cannot find a TypeBinder[TestEnum], try to manually add it， such as: `enum TestEnum derives IntToEnum` 
 enum TestEnum:
   case Enum1 extends TestEnum
   case Enum2 extends TestEnum
