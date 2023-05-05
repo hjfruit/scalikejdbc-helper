@@ -22,3 +22,8 @@ create table testdb.t_enum
 (
     id smallint
 );
+
+create table testdb.t_json
+(
+    name json default '{}'
+);

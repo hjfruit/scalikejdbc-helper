@@ -125,3 +125,11 @@ class AutoMacrosSpec
     val res = EnumTable.queryEnum()
     res.map(_.id) shouldEqual Some(TestEnum.Enum2)
   }
+
+  "insert with json" should "ok" in {
+    val map = Map("id" -> "123")
+    JsonTable.insertJson(JsonEntity(map))
+
+    val res = JsonTable.queryJson()
+    res.map(_.name) shouldEqual Some(map)
+  }
