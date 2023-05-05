@@ -27,4 +27,4 @@ import bitlap.scalikejdbc.core.EnumBinders
  *    梦境迷离
  *  @version 1.0,2023/4/27
  */
-trait AllBinders extends ArrayBinders, JsonBinders, EnumBinders
+trait AllBinders extends ArrayBinders, EnumBinders

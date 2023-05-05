@@ -43,10 +43,10 @@ object DeriveParameterBinder:
 
   inline def json[T](inline f: T => String): ParameterBinderFactory[T] = ${ jsonImpl('{ f }, '{ ObjectType.Json }) }
 
-  private def jsonImpl[T](f: Expr[T => String], objectType: Expr[ObjectType])(using
-    Quotes,
-    Type[T]
+  private def jsonImpl[T: Type](f: Expr[T => String], objectType: Expr[ObjectType])(using
+    quotes: Quotes
   ): Expr[ParameterBinderFactory[T]] =
+    import quotes.reflect.*
     '{
       ParameterBinderFactory[T] { (value: T) => (stmt: PreparedStatement, idx: Int) =>
         val obj     = new PGobject()

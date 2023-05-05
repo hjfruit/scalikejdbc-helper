@@ -42,14 +42,14 @@
 
 ## Json
 ### ParameterBinderFactory
-| postgres type | scala type | required implicit mapping function |
-|---------------|------------|------------------------------------|
-| json/jsonb    | `T`        | `String => T`                      |
+| postgres type | scala type                     | required implicit mapping function       |
+|---------------|--------------------------------|------------------------------------------|
+| json/jsonb    | scala.collection.immutable.Map | String => scala.collection.immutable.Map |
 
 ### TypeBinder
-| scala type | required implicit mapping function | postgres type |
-|------------|------------------------------------|---------------|
-| `T`        | `T => String`                      | jsonb/json    |
+| scala type                     | required implicit mapping function       | postgres type |
+|--------------------------------|------------------------------------------|---------------|
+| scala.collection.immutable.Map | scala.collection.immutable.Map => String | jsonb/json    |
 
 ## Enum
 

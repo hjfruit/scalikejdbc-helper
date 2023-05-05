@@ -30,8 +30,10 @@ import scalikejdbc.*
  */
 trait JsonBinders:
 
-  given type2Json[T <: Product](using map: T => String): ParameterBinderFactory[T] =
+  /** Only support [[scala.collection.immutable.Map]]
+   */
+  given type2Json[T <: Map[?, ?]](using map: T => String): ParameterBinderFactory[T] =
     DeriveParameterBinder.jsonb[T](map)
 
-  given json2Type[T <: Product](using map: String => T): TypeBinder[T] =
+  given json2Type[T <: Map[?, ?]](using map: String => T): TypeBinder[T] =
     DeriveTypeBinder.json[T](map)
