@@ -25,7 +25,7 @@ import scala.annotation.implicitNotFound
 import scala.deriving.*
 import scala.compiletime.*
 
-/** Generate `fromOrdinal` for simple enum. Simple enum cannot have params.
+/** Generate `fromOrdinal` for scala3 enum.
  *  @author
  *    梦境迷离
  *  @version 1.0,2023/4/27

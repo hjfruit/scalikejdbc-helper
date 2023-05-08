@@ -54,14 +54,16 @@
 ## Enum
 
 ### ParameterBinderFactory
-| scala type | postgres type | 
-|------------|---------------|
-| enum       | smallint      |
+| scala type    | postgres type | 
+|---------------|---------------|
+| enum(ordinal) | smallint      |
+
+> It only stores enum ordinal. 
 
 ### TypeBinder
-| postgres type | scala type | 
-|---------------|------------|
-| smallint      | enum       |
+| postgres type | scala type    | 
+|---------------|---------------|
+| smallint      | enum(ordinal) |
 
 ## Manual definition
 ```scala
