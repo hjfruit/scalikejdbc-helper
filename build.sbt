@@ -77,7 +77,7 @@ lazy val `postgres` = project
     )
   )
   .settings(commonSettings)
-  .dependsOn(`core` % "provided->provided")
+  .dependsOn(`core` % "provided->provided;compile->compile;test->test")
 
 lazy val `core` = project
   .in(file("core"))
