@@ -52,6 +52,7 @@ lazy val commonSettings =
   )
 
 lazy val scalikejdbcDep      = "org.scalikejdbc" %% "scalikejdbc"                      % "4.0.0"
+lazy val zioDep              = "dev.zio"         %% "zio"                              % "2.0.0"  % Provided
 lazy val postgresqlDep       = "org.postgresql"   % "postgresql"                       % "42.5.4" % Provided
 lazy val embeddedPostgresDep = "io.zonky.test"    % "embedded-postgres"                % "2.0.3"  % Test
 lazy val scalikejdbcMacroDep = "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % "4.0.0"  % Test
@@ -72,7 +73,8 @@ lazy val `postgres` = project
       postgresqlDep,
       scalikejdbcDep,
       embeddedPostgresDep,
-      scalikejdbcMacroDep
+      scalikejdbcMacroDep,
+      zioDep
     )
   )
   .settings(commonSettings)

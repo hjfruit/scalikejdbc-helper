@@ -133,3 +133,64 @@ class AutoMacrosSpec
     val res = JsonTable.queryJson()
     res.map(_.name) shouldEqual Some(map)
   }
+
+  import bitlap.scalikejdbc.*
+  import zio.ZIO
+
+  "attempt tx and throw" should "ok" in {
+    val user = User(id = "99", varcharArray = Nil, decimalArray = Nil, longArray = Nil, intArray = List(1))
+    val insert = DB.zioLocalTx { implicit session =>
+      ZIO.attempt(User.insertUserByNameValues(autoNamedValues(User, user)).apply())
+    }
+    zio.Unsafe.unsafeCompat(implicit u => zio.Runtime.default.unsafe.run(insert))
+    val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '99'")
+    res.next() shouldEqual true
+  }
+
+  "attempt tx and throw" should "rollback" in {
+    val user = User(id = "100", varcharArray = Nil, decimalArray = Nil, longArray = Nil, intArray = List(1))
+    val insert = DB.zioLocalTx { implicit session =>
+      ZIO.attempt {
+        User.insertUserByNameValues(autoNamedValues(User, user)).apply()
+        throw new Exception("")
+      }
+    }
+    zio.Unsafe.unsafeCompat(implicit u => zio.Runtime.default.unsafe.run(insert))
+    val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '100'")
+    res.next() shouldEqual false
+  }
+
+  "attemptBlocking and tx" should "ok" in {
+    val user = User(id = "101", varcharArray = Nil, decimalArray = Nil, longArray = Nil, intArray = List(1))
+    val insert = DB.zioLocalTx { implicit session =>
+      ZIO.attemptBlocking(User.insertUserByNameValues(autoNamedValues(User, user)).apply())
+    }
+    zio.Unsafe.unsafeCompat(implicit u => zio.Runtime.default.unsafe.run(insert))
+    val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '101'")
+    res.next() shouldEqual true
+  }
+
+  "attemptBlocking tx and throw" should "rollback" in {
+    val user = User(id = "102", varcharArray = Nil, decimalArray = Nil, longArray = Nil, intArray = List(1))
+    val insert = DB.zioLocalTx { implicit session =>
+      ZIO.attemptBlocking {
+        User.insertUserByNameValues(autoNamedValues(User, user)).apply()
+        throw new Exception("")
+      }
+    }
+    zio.Unsafe.unsafeCompat(implicit u => zio.Runtime.default.unsafe.run(insert))
+    val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '102'")
+    res.next() shouldEqual false
+  }
+
+  "attemptBlocking tx and ZIO.fail" should "rollback" in {
+    val user = User(id = "103", varcharArray = Nil, decimalArray = Nil, longArray = Nil, intArray = List(1))
+    val insert = DB.zioLocalTx { implicit session =>
+      ZIO.attemptBlocking {
+        User.insertUserByNameValues(autoNamedValues(User, user)).apply()
+      } *> ZIO.fail(throw new Exception(""))
+    }
+    zio.Unsafe.unsafeCompat(implicit u => zio.Runtime.default.unsafe.run(insert))
+    val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '103'")
+    res.next() shouldEqual false
+  }
