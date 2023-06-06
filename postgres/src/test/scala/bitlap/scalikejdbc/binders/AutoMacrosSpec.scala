@@ -134,8 +134,8 @@ class AutoMacrosSpec
     res.map(_.name) shouldEqual Some(map)
   }
 
-  import bitlap.scalikejdbc.*
-  import zio.ZIO
+  import bitlap.scalikejdbc.core.*
+  import zio.*
 
   "attempt tx and throw" should "ok" in {
     val user = User(id = "99", varcharArray = Nil, decimalArray = Nil, longArray = Nil, intArray = List(1))

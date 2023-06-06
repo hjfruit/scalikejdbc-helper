@@ -73,17 +73,16 @@ lazy val `postgres` = project
       postgresqlDep,
       scalikejdbcDep,
       embeddedPostgresDep,
-      scalikejdbcMacroDep,
-      zioDep
+      scalikejdbcMacroDep
     )
   )
   .settings(commonSettings)
-  .dependsOn(`core`)
+  .dependsOn(`core` % "provided->provided")
 
 lazy val `core` = project
   .in(file("core"))
   .settings(
     name := "scalikejdbc-helper-core",
-    libraryDependencies ++= Seq(scalikejdbcDep)
+    libraryDependencies ++= Seq(scalikejdbcDep, zioDep)
   )
   .settings(commonSettings)
