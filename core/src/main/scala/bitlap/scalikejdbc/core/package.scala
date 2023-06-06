@@ -36,4 +36,6 @@ extension (db: DB.type)
     context: CPContext = NoCPContext,
     settings: SettingsProvider = SettingsProvider.default
   ): Task[A] =
-    localTx(execution)(context, ZIOTxBoundary.zioTxBoundary, settings)
+    ZIO.blocking {
+      localTx(execution)(context, ZIOTxBoundary.zioTxBoundary, settings)
+    }
