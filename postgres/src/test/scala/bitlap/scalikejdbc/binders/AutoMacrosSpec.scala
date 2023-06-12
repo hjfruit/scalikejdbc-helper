@@ -29,8 +29,6 @@ import bitlap.scalikejdbc.core.*
 import bitlap.scalikejdbc.Utils
 import bitlap.scalikejdbc.core.internal.DeriveEnumTypeBinder
 import bitlap.scalikejdbc.internal.DeriveTypeBinder
-import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
-import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.{ autoColumns as _, autoNamedValues as _, * }
@@ -44,36 +42,7 @@ import scala.collection.immutable.List
  *    梦境迷离
  *  @version 1.0,2023/4/13
  */
-class AutoMacrosSpec
-    extends AnyFlatSpec
-    with Matchers
-    with PostgresSQLSyntaxSupport
-    with ArrayBinders
-    with BeforeAndAfterAll
-    with BaseSpec:
-
-  final def jdbcUriTemplate: String = "jdbc:postgresql://localhost:%s/postgres"
-
-  var embeddedPostgres: EmbeddedPostgres = _
-  var stmt: Statement                    = _
-
-  override protected def beforeAll(): Unit = {
-    embeddedPostgres = EmbeddedPostgres
-      .builder()
-      .start()
-
-    ConnectionPool.singleton(jdbcUriTemplate.format(embeddedPostgres.getPort), "postgres", "postgres")
-    stmt = embeddedPostgres.getPostgresDatabase.getConnection.createStatement()
-
-    val sqls = parseInitFile(getClass.getClassLoader.getResource("test.sql").getFile)
-    sqls.foreach(sql => stmt.execute(sql))
-  }
-
-  override protected def afterAll(): Unit =
-    if (embeddedPostgres != null)
-      embeddedPostgres.close()
-
-    if (stmt != null) stmt.close()
+class AutoMacrosSpec extends AnyFlatSpec with Matchers with PostgresSQLSyntaxSupport with ArrayBinders with BaseSpec:
 
   val users3_4 = List(
     User(id = "3", varcharArray = List("333", "333"), decimalArray = Nil, longArray = Nil, intArray = List(1)),

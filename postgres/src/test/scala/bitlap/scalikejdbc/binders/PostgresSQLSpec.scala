@@ -31,7 +31,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.*
 
-import java.sql.{ Connection, DriverManager, Statement }
+import java.sql.*
 import javax.sql.DataSource
 import scala.collection.immutable.List
 
@@ -39,36 +39,7 @@ import scala.collection.immutable.List
  *    梦境迷离
  *  @version 1.0,2023/3/8
  */
-class PostgresSQLSpec
-    extends AnyFlatSpec
-    with Matchers
-    with PostgresSQLSyntaxSupport
-    with ArrayBinders
-    with BeforeAndAfterAll
-    with BaseSpec:
-
-  final def jdbcUriTemplate: String = "jdbc:postgresql://localhost:%s/postgres"
-
-  var embeddedPostgres: EmbeddedPostgres = _
-  var stmt: Statement                    = _
-
-  override protected def beforeAll(): Unit = {
-    embeddedPostgres = EmbeddedPostgres
-      .builder()
-      .start()
-
-    ConnectionPool.singleton(jdbcUriTemplate.format(embeddedPostgres.getPort), "postgres", "postgres")
-    stmt = embeddedPostgres.getPostgresDatabase.getConnection.createStatement()
-
-    val sqls = parseInitFile(getClass.getClassLoader.getResource("test.sql").getFile)
-    sqls.foreach(sql => stmt.execute(sql))
-  }
-
-  override protected def afterAll(): Unit =
-    if (embeddedPostgres != null)
-      embeddedPostgres.close()
-
-    if (stmt != null) stmt.close()
+class PostgresSQLSpec extends AnyFlatSpec with Matchers with PostgresSQLSyntaxSupport with ArrayBinders with BaseSpec:
 
   val users3_4 = List(
     User(id = "3", varcharArray = List("333", "333"), decimalArray = Nil, longArray = Nil, intArray = List(1)),

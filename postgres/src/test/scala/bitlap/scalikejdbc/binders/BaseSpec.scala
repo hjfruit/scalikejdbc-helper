@@ -21,13 +21,17 @@
 
 package bitlap.scalikejdbc.binders
 
+import org.scalatest.*
 import scalikejdbc.*
+
+import java.sql.Statement
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
 
 /** @author
  *    梦境迷离
  *  @version 1.0,2023/6/12
  */
-trait BaseSpec {
+trait BaseSpec extends BeforeAndAfterAll { this: Suite =>
 
   GlobalSettings.loggingSQLAndTime = LoggingSQLAndTimeSettings(
     enabled = true,
@@ -39,5 +43,28 @@ trait BaseSpec {
     warningThresholdMillis = 3000L,
     warningLogLevel = "info"
   )
+
+  final def jdbcUriTemplate: String = "jdbc:postgresql://localhost:%s/postgres"
+
+  var embeddedPostgres: EmbeddedPostgres = _
+  var stmt: Statement                    = _
+
+  override protected def beforeAll(): Unit = {
+    embeddedPostgres = EmbeddedPostgres
+      .builder()
+      .start()
+
+    ConnectionPool.singleton(jdbcUriTemplate.format(embeddedPostgres.getPort), "postgres", "postgres")
+    stmt = embeddedPostgres.getPostgresDatabase.getConnection.createStatement()
+
+    val sqls = parseInitFile(getClass.getClassLoader.getResource("test.sql").getFile)
+    sqls.foreach(sql => stmt.execute(sql))
+  }
+
+  override protected def afterAll(): Unit =
+    if (embeddedPostgres != null)
+      embeddedPostgres.close()
+
+    if (stmt != null) stmt.close()
 
 }
