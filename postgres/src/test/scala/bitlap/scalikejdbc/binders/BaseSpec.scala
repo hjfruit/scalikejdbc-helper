@@ -19,32 +19,25 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package bitlap.scalikejdbc.core
+package bitlap.scalikejdbc.binders
 
 import scalikejdbc.*
-import scalikejdbc.DB.*
-import zio.*
 
-object ZIOTxBoundary:
+/** @author
+ *    梦境迷离
+ *  @version 1.0,2023/6/12
+ */
+trait BaseSpec {
 
-  private def logTxError[A](effect: => A): URIO[Any, Unit] =
-    ZIO
-      .attempt(effect)
-      .onExit {
-        case Exit.Success(_)     => ZIO.unit
-        case Exit.Failure(cause) => ZIO.logErrorCause(cause)
-      }
-      .ignore
+  GlobalSettings.loggingSQLAndTime = LoggingSQLAndTimeSettings(
+    enabled = true,
+    singleLineMode = true,
+    printUnprocessedStackTrace = false,
+    stackTraceDepth = 3,
+    logLevel = "info",
+    warningEnabled = true,
+    warningThresholdMillis = 3000L,
+    warningLogLevel = "info"
+  )
 
-  given zioTxBoundary[A]: TxBoundary[Task[A]] = new TxBoundary[Task[A]]:
-
-    def finishTx(result: Task[A], tx: Tx): Task[A] =
-      result.onExit(cleanup =>
-        cleanup match
-          case Exit.Success(_) => logTxError(tx.commit())
-          case Exit.Failure(cause) =>
-            ZIO.logErrorCause(cause) *> logTxError(tx.rollback())
-      )
-
-    override def closeConnection(result: Task[A], doClose: () => Unit): Task[A] =
-      result.ensuring(logTxError(doClose.apply()))
+}

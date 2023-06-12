@@ -37,7 +37,7 @@ import scala.concurrent.{ ExecutionContext, Future }
  *    梦境迷离
  *  @version 1.0,2023/3/8
  */
-class DeriveBindersSpec extends AnyFlatSpec with Matchers:
+class DeriveBindersSpec extends AnyFlatSpec with Matchers with BaseSpec:
 
   def toJson(mp: Map[String, String]): String =
     mp.map(kv => s"""\"${kv._1}\":\"${kv._2}\"""").mkString("{", ",", "}")

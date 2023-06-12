@@ -26,6 +26,7 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.util.control.Breaks.*
 import java.io.*
+import scalikejdbc.*
 
 /** @author
  *    梦境迷离

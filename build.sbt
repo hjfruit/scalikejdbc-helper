@@ -56,6 +56,12 @@ lazy val zioDep              = "dev.zio"         %% "zio"                       
 lazy val postgresqlDep       = "org.postgresql"   % "postgresql"                       % "42.5.4" % Provided
 lazy val embeddedPostgresDep = "io.zonky.test"    % "embedded-postgres"                % "2.0.3"  % Test
 lazy val scalikejdbcMacroDep = "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % "4.0.0"  % Test
+lazy val slf4jSimpleDep      = "org.slf4j"        % "slf4j-simple"                     % "1.7.32" % Test
+lazy val zioLoggingDep = Seq(
+  "dev.zio" %% "zio-logging-slf4j" % "2.1.13" % Test,
+  "dev.zio" %% "zio-logging"       % "2.1.13"
+)
+
 lazy val `scalikejdbc-helper` = project
   .in(file("."))
   .aggregate(`postgres`, `core`)
@@ -73,8 +79,9 @@ lazy val `postgres` = project
       postgresqlDep,
       scalikejdbcDep,
       embeddedPostgresDep,
-      scalikejdbcMacroDep
-    )
+      scalikejdbcMacroDep,
+      slf4jSimpleDep
+    ) ++ zioLoggingDep
   )
   .settings(commonSettings)
   .dependsOn(`core` % "provided->provided;compile->compile;test->test")

@@ -44,7 +44,8 @@ class PostgresSQLSpec
     with Matchers
     with PostgresSQLSyntaxSupport
     with ArrayBinders
-    with BeforeAndAfterAll:
+    with BeforeAndAfterAll
+    with BaseSpec:
 
   final def jdbcUriTemplate: String = "jdbc:postgresql://localhost:%s/postgres"
 

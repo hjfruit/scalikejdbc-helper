@@ -34,6 +34,7 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.{ autoColumns as _, autoNamedValues as _, * }
+import zio.logging.backend.SLF4J
 
 import java.sql.*
 import javax.sql.DataSource
@@ -48,7 +49,8 @@ class AutoMacrosSpec
     with Matchers
     with PostgresSQLSyntaxSupport
     with ArrayBinders
-    with BeforeAndAfterAll:
+    with BeforeAndAfterAll
+    with BaseSpec:
 
   final def jdbcUriTemplate: String = "jdbc:postgresql://localhost:%s/postgres"
 
@@ -142,7 +144,7 @@ class AutoMacrosSpec
     val insert = DB.zioLocalTx { implicit session =>
       ZIO.attempt(User.insertUserByNameValues(autoNamedValues(User, user)).apply())
     }
-    zio.Unsafe.unsafeCompat(implicit u => zio.Runtime.default.unsafe.run(insert))
+    zio.Unsafe.unsafe(implicit u => zio.Runtime.default.unsafe.run(insert))
     val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '99'")
     res.next() shouldEqual true
   }
@@ -155,7 +157,7 @@ class AutoMacrosSpec
         throw new Exception("")
       }
     }
-    zio.Unsafe.unsafeCompat(implicit u => zio.Runtime.default.unsafe.run(insert))
+    zio.Unsafe.unsafe(implicit u => zio.Runtime.default.unsafe.run(insert))
     val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '100'")
     res.next() shouldEqual false
   }
@@ -165,7 +167,7 @@ class AutoMacrosSpec
     val insert = DB.zioLocalTx { implicit session =>
       ZIO.attemptBlocking(User.insertUserByNameValues(autoNamedValues(User, user)).apply())
     }
-    zio.Unsafe.unsafeCompat(implicit u => zio.Runtime.default.unsafe.run(insert))
+    zio.Unsafe.unsafe(implicit u => zio.Runtime.default.unsafe.run(insert))
     val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '101'")
     res.next() shouldEqual true
   }
@@ -178,7 +180,7 @@ class AutoMacrosSpec
         throw new Exception("")
       }
     }
-    zio.Unsafe.unsafeCompat(implicit u => zio.Runtime.default.unsafe.run(insert))
+    zio.Unsafe.unsafe(implicit u => zio.Runtime.default.unsafe.run(insert))
     val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '102'")
     res.next() shouldEqual false
   }
@@ -190,7 +192,7 @@ class AutoMacrosSpec
         User.insertUserByNameValues(autoNamedValues(User, user)).apply()
       } *> ZIO.fail(throw new Exception(""))
     }
-    zio.Unsafe.unsafeCompat(implicit u => zio.Runtime.default.unsafe.run(insert))
+    zio.Unsafe.unsafe(implicit u => zio.Runtime.default.unsafe.run(insert))
     val res = stmt.executeQuery("select int_array,long_array,varchar_array from testdb.t_user where id = '103'")
     res.next() shouldEqual false
   }
