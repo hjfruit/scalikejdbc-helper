@@ -96,12 +96,12 @@ class DeriveBindersSpec extends AnyFlatSpec with Matchers with BaseSpec:
     string shouldEqual """({
         |  final class $anon() extends TypeBinder[String] {
         |    def apply(rs: ResultSet, label: String): String = {
-        |      val _$4$proxy1: String = rs.getString(label)
-        |      _$4$proxy1.trim()
+        |      val _$4: String = rs.getString(label)
+        |      _$4.trim()
         |    }
         |    def apply(`rs₂`: ResultSet, columnIndex: Int): String = {
-        |      val _$4$proxy2: String = `rs₂`.getString(columnIndex)
-        |      _$4$proxy2.trim()
+        |      val `_$4₂`: String = `rs₂`.getString(columnIndex)
+        |      `_$4₂`.trim()
         |    }
         |  }
         |

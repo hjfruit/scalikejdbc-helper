@@ -1,4 +1,4 @@
-val scala3Version    = "3.2.2"
+val scala3Version    = "3.3.0"
 val scalatestVersion = "3.2.14"
 ThisBuild / resolvers ++= Seq(
   Resolver.mavenLocal,

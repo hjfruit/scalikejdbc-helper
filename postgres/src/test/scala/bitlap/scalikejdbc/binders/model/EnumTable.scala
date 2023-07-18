@@ -30,7 +30,7 @@ final case class EnumEntity(
   id: TestEnum
 )
 
-enum TestEnum:
+enum TestEnum derives IntToEnum:
   case Enum1 extends TestEnum
   case Enum2 extends TestEnum
 end TestEnum

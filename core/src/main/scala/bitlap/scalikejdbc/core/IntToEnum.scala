@@ -37,7 +37,7 @@ end IntToEnum
 
 object IntToEnum:
 
-  inline given derived[T <: reflect.Enum](using m: Mirror.SumOf[T]): IntToEnum[T] =
+  inline def derived[T <: reflect.Enum](using m: Mirror.SumOf[T]): IntToEnum[T] =
     val elemInstances =
       summonAll[Tuple.Map[m.MirroredElemTypes, ValueOf]].productIterator.asInstanceOf[Iterator[ValueOf[T]]].map(_.value)
     val productArity = summonAll[Tuple.Map[m.MirroredElemLabels, ValueOf]].productArity
