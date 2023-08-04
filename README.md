@@ -1,10 +1,12 @@
 # scalikejdbc-helper
 
-![CI][Badge-CI]  [![ScalaIndex][ScalaIndex-Releases]][ScalaIndex-Link] 
+![CI][Badge-CI] [![Nexus (Snapshots)][Badge-Snapshots]][Link-Snapshots] [![Sonatype Nexus (Releases)][Badge-Release]][Link-Release] 
 
 [Badge-CI]: https://github.com/hjfruit/scalikejdbc-helper/actions/workflows/ScalaCI.yml/badge.svg
-[ScalaIndex-Releases]: https://index.scala-lang.org/jxnu-liguobin/scalikejdbc-helper/scalikejdbc-helper-postgres/latest-by-scala-version.svg?platform=jvm
-[ScalaIndex-Link]: https://index.scala-lang.org/jxnu-liguobin/scalikejdbc-helper/scalikejdbc-helper-postgres
+[Badge-Snapshots]: https://img.shields.io/nexus/s/io.github.jxnu-liguobin/scalikejdbc-helper-core_3?server=https%3A%2F%2Foss.sonatype.org
+[Link-Snapshots]: https://oss.sonatype.org/content/repositories/snapshots/io/github/jxnu-liguobin/scalikejdbc-helper-core_3/
+[Link-Release]: https://oss.sonatype.org/content/repositories/public/io/github/jxnu-liguobin/scalikejdbc-helper-core_3/
+[Badge-Release]: https://img.shields.io/nexus/r/io.github.jxnu-liguobin/scalikejdbc-helper-core_3?server=https%3A%2F%2Foss.sonatype.org
 
 ----
 
