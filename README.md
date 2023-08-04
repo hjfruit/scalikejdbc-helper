@@ -2,9 +2,9 @@
 
 ![CI][Badge-CI]  [![ScalaIndex][ScalaIndex-Releases]][ScalaIndex-Link] 
 
-[Badge-CI]: https://github.com/bitlap/scalikejdbc-helper/actions/workflows/ScalaCI.yml/badge.svg
-[ScalaIndex-Releases]: https://index.scala-lang.org/bitlap/scalikejdbc-helper/scalikejdbc-helper-postgres/latest-by-scala-version.svg?platform=jvm
-[ScalaIndex-Link]: https://index.scala-lang.org/bitlap/scalikejdbc-helper/scalikejdbc-helper-postgres
+[Badge-CI]: https://github.com/jxnu-liguobin/scalikejdbc-helper/actions/workflows/ScalaCI.yml/badge.svg
+[ScalaIndex-Releases]: https://index.scala-lang.org/jxnu-liguobin/scalikejdbc-helper/scalikejdbc-helper-postgres/latest-by-scala-version.svg?platform=jvm
+[ScalaIndex-Link]: https://index.scala-lang.org/jxnu-liguobin/scalikejdbc-helper/scalikejdbc-helper-postgres
 
 ----
 
@@ -13,7 +13,7 @@
 - Dependency
 
 ```scala
-"org.bitlap" %% "scalikejdbc-helper-postgres" % "<version>"
+"io.github.jxnu-liguobin" %% "scalikejdbc-helper-postgres" % "<version>"
 ```
 
 - Inherit `bitlap.scalikejdbc.binders.AllBinders`

@@ -8,8 +8,7 @@ ThisBuild / resolvers ++= Seq(
 inThisBuild(
   List(
     ThisBuild / useCoursier := false,
-    organization            := "org.bitlap",
-    sonatypeCredentialHost  := "s01.oss.sonatype.org",
+    organization            := "io.github.jxnu-liguobin",
     sonatypeRepository :=
       "https://s01.oss.sonatype.org/service/local",
     homepage := Some(url("https://github.com/bitlap/scalikejdbc-helper")),
@@ -28,12 +27,12 @@ inThisBuild(
 Global / onChangedBuildSource := ReloadOnSourceChanges
 lazy val commonSettings =
   Seq(
-    organization                  := "org.bitlap",
+    organization                  := "io.github.jxnu-liguobin",
     startYear                     := Some(2023),
     scalaVersion                  := scala3Version,
     Compile / compile             := (Compile / compile).dependsOn(Compile / headerCreateAll).value,
     Global / onChangedBuildSource := ReloadOnSourceChanges,
-    headerLicense                 := Some(HeaderLicense.MIT("2023", "bitlap")),
+    headerLicense                 := Some(HeaderLicense.MIT("2023", "jxnu-liguobin")),
     Test / testOptions += Tests.Argument("-oDF"),
     Test / fork               := true,
     publishConfiguration      := publishConfiguration.value.withOverwrite(true),
