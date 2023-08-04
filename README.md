@@ -2,7 +2,7 @@
 
 ![CI][Badge-CI]  [![ScalaIndex][ScalaIndex-Releases]][ScalaIndex-Link] 
 
-[Badge-CI]: https://github.com/jxnu-liguobin/scalikejdbc-helper/actions/workflows/ScalaCI.yml/badge.svg
+[Badge-CI]: https://github.com/hjfruit/scalikejdbc-helper/actions/workflows/ScalaCI.yml/badge.svg
 [ScalaIndex-Releases]: https://index.scala-lang.org/jxnu-liguobin/scalikejdbc-helper/scalikejdbc-helper-postgres/latest-by-scala-version.svg?platform=jvm
 [ScalaIndex-Link]: https://index.scala-lang.org/jxnu-liguobin/scalikejdbc-helper/scalikejdbc-helper-postgres
 
